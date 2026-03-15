@@ -79,7 +79,7 @@ export default function App() {
   const totalEnabled = allSkills.filter((s) => s.enabled).length
 
   return (
-    <div className="flex flex-col h-screen bg-zinc-950">
+    <div className="flex flex-col h-screen bg-[#0c0c0e]">
       <Header
         search={search}
         onSearch={setSearch}
@@ -143,16 +143,11 @@ function EmptyState({ tools, loading }: { tools: ToolSummary[]; loading: boolean
       <div className="w-full max-w-sm">
         {/* Heading */}
         <div className="text-center mb-6">
-          <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center mx-auto mb-3">
-            <svg width="18" height="18" viewBox="0 0 12 12" fill="none" className="text-zinc-500">
-              <path d="M6 1L7.5 4.5H11L8.25 6.75L9.25 10.5L6 8.25L2.75 10.5L3.75 6.75L1 4.5H4.5L6 1Z" fill="currentColor"/>
-            </svg>
-          </div>
-          <h2 className="text-sm font-semibold text-zinc-300 mb-1">Select a skill</h2>
+          <h2 className="font-heading text-lg text-zinc-300 mb-1">Select a skill</h2>
           <p className="text-xs text-zinc-600">
             {available.length > 0
-              ? `${available.length} tool${available.length !== 1 ? 's' : ''} found with skills installed`
-              : 'No tool paths found on this machine'}
+              ? `${available.length} agent${available.length !== 1 ? 's' : ''} with skills installed`
+              : 'No agent paths found on this machine'}
           </p>
         </div>
 

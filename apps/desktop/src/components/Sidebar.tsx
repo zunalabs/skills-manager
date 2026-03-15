@@ -18,10 +18,10 @@ export default function Sidebar({ skills, selected, onSelect, loading, onToggle 
 
   if (loading) {
     return (
-      <aside className="w-64 flex-shrink-0 border-r border-zinc-800 bg-zinc-950 overflow-y-auto">
-        <div className="p-3 space-y-1.5">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} className="h-12 rounded-lg bg-zinc-900 animate-pulse" />
+      <aside className="w-60 flex-shrink-0 border-r border-zinc-800/60 bg-zinc-950 overflow-y-auto">
+        <div className="px-3 pt-4 space-y-1">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-9 rounded-lg bg-zinc-900/60 animate-pulse" style={{ opacity: 1 - i * 0.1 }} />
           ))}
         </div>
       </aside>
@@ -30,27 +30,27 @@ export default function Sidebar({ skills, selected, onSelect, loading, onToggle 
 
   if (skills.length === 0) {
     return (
-      <aside className="w-64 flex-shrink-0 border-r border-zinc-800 bg-zinc-950 flex items-center justify-center">
+      <aside className="w-60 flex-shrink-0 border-r border-zinc-800/60 bg-zinc-950 flex items-center justify-center">
         <p className="text-xs text-zinc-600">No skills found</p>
       </aside>
     )
   }
 
   return (
-    <aside className="w-64 flex-shrink-0 border-r border-zinc-800 bg-zinc-950 overflow-y-auto">
-      <div className="p-2 pt-3">
+    <aside className="w-60 flex-shrink-0 border-r border-zinc-800/60 bg-zinc-950 overflow-y-auto">
+      <div className="px-2 pt-3 pb-4">
         {Object.entries(grouped).map(([tool, toolSkills]) => (
-          <div key={tool} className="mb-5">
+          <div key={tool} className="mb-4">
             {/* Tool group header */}
-            <div className="flex items-center gap-2 px-2 mb-1.5">
-              <span className="flex-shrink-0 flex items-center justify-center w-3.5 h-3.5 opacity-70">
-                <ToolIcon tool={tool} size={14} />
+            <div className="flex items-center gap-1.5 px-2.5 mb-1 h-7">
+              <span className="flex-shrink-0 opacity-50">
+                <ToolIcon tool={tool} size={12} />
               </span>
-              <span className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest">{tool}</span>
-              <span className="ml-auto text-[10px] font-medium text-zinc-600 tabular-nums">{toolSkills.length}</span>
+              <span className="text-[10px] font-medium text-zinc-500 tracking-wide truncate">{tool}</span>
+              <span className="ml-auto text-[10px] text-zinc-700 tabular-nums flex-shrink-0">{toolSkills.length}</span>
             </div>
 
-            <div className="space-y-0.5">
+            <div className="space-y-px">
               {toolSkills.map((skill) => (
                 <SkillRow
                   key={skill.id}
@@ -82,29 +82,24 @@ function SkillRow({
   return (
     <div
       onClick={() => onSelect(selected ? null : skill)}
-      className={`group relative flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer transition-all ${
+      className={`group flex items-center gap-2.5 px-2.5 py-2 rounded-lg cursor-pointer transition-colors ${
         selected
-          ? 'bg-violet-500/10 border border-violet-500/20'
-          : 'hover:bg-zinc-900 border border-transparent'
+          ? 'bg-zinc-800/80'
+          : 'hover:bg-zinc-900/80'
       }`}
     >
-      {/* Enable/disable toggle dot */}
+      {/* Enable dot */}
       <button
-        onClick={(e) => {
-          e.stopPropagation()
-          onToggle(skill)
-        }}
-        className={`flex-shrink-0 w-2 h-2 rounded-full transition-all mt-0.5 ${
-          skill.enabled
-            ? 'bg-green-500 shadow-[0_0_4px_rgba(34,197,94,0.5)]'
-            : 'bg-zinc-700 group-hover:bg-zinc-600'
+        onClick={(e) => { e.stopPropagation(); onToggle(skill) }}
+        className={`flex-shrink-0 w-1.5 h-1.5 rounded-full transition-colors ${
+          skill.enabled ? 'bg-green-500' : 'bg-zinc-700 group-hover:bg-zinc-600'
         }`}
-        title={skill.enabled ? 'Click to disable' : 'Click to enable'}
+        title={skill.enabled ? 'Disable' : 'Enable'}
       />
 
       <div className="flex-1 min-w-0">
-        <p className={`text-xs font-medium truncate leading-tight ${
-          skill.enabled ? 'text-zinc-200' : 'text-zinc-500'
+        <p className={`text-xs truncate leading-tight ${
+          selected ? 'text-zinc-100' : skill.enabled ? 'text-zinc-300' : 'text-zinc-500'
         }`}>
           {skill.name}
         </p>
@@ -114,9 +109,7 @@ function SkillRow({
       </div>
 
       {skill.hasTemplates && (
-        <span className="flex-shrink-0 text-[10px] text-zinc-600 bg-zinc-800 px-1.5 py-0.5 rounded-full border border-zinc-700/50 tabular-nums">
-          {skill.templateCount}
-        </span>
+        <span className="flex-shrink-0 text-[10px] text-zinc-700 tabular-nums">{skill.templateCount}</span>
       )}
     </div>
   )

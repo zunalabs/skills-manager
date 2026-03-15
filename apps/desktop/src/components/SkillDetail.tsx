@@ -57,9 +57,9 @@ export default function SkillDetail({ skill, onToggle, onDelete }: SkillDetailPr
     : ''
 
   return (
-    <div className="flex flex-col h-full bg-zinc-950">
+    <div className="flex flex-col h-full bg-[#0c0c0e]">
       {/* Skill header */}
-      <div className="flex-shrink-0 border-b border-zinc-800 bg-zinc-900/40 px-6 py-4">
+      <div className="flex-shrink-0 border-b border-zinc-800/60 px-6 py-5">
         <div className="flex items-start gap-4">
           {/* Tool icon */}
           <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700/50 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -251,7 +251,7 @@ export default function SkillDetail({ skill, onToggle, onDelete }: SkillDetailPr
       </div>
 
       {/* Tabs */}
-      <div className="flex-shrink-0 flex items-center border-b border-zinc-800 bg-zinc-950 px-6 gap-1">
+      <div className="flex-shrink-0 flex items-center border-b border-zinc-800/60 bg-[#0c0c0e] px-6 gap-1">
         <TabButton
           active={activeTab === 'readme'}
           onClick={() => setActiveTab('readme')}
