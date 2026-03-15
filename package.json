@@ -1,0 +1,17 @@
+{
+  "name": "skills-manager",
+  "private": true,
+  "packageManager": "npm@10.8.2",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:desktop": "npm run dev --workspace=apps/desktop",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build:desktop": "npm run build --workspace=apps/desktop",
+    "build:web": "npm run build --workspace=apps/web"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0"
+  }
+}
