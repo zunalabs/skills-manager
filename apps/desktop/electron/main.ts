@@ -91,8 +91,8 @@ function readSkillDir(toolName: string, toolPath: string, skillDirName: string):
     }
   }
 
-  // Check if skill is disabled (has .disabled marker file or name starts with _)
-  const isDisabled = fs.existsSync(path.join(skillPath, '.disabled')) || skillDirName.startsWith('_')
+  // Disabled if folder name starts with _
+  const isDisabled = skillDirName.startsWith('_')
 
   return {
     id: `${toolName}::${skillDirName}`,
@@ -180,19 +180,23 @@ function deleteSkill(skillPath: string): boolean {
   }
 }
 
-function toggleSkill(skillPath: string, enabled: boolean): boolean {
-  const disabledMarker = path.join(skillPath, '.disabled')
+function toggleSkill(skillPath: string, enabled: boolean): { ok: boolean; newPath: string } {
+  const dir = path.dirname(skillPath)
+  const base = path.basename(skillPath)
   try {
+    let newBase: string
     if (enabled) {
-      // Enable: remove .disabled marker
-      if (fs.existsSync(disabledMarker)) fs.unlinkSync(disabledMarker)
+      // Enable: strip leading _ prefix
+      newBase = base.startsWith('_') ? base.slice(1) : base
     } else {
-      // Disable: create .disabled marker
-      fs.writeFileSync(disabledMarker, '')
+      // Disable: add leading _ prefix
+      newBase = base.startsWith('_') ? base : `_${base}`
     }
-    return true
+    const newPath = path.join(dir, newBase)
+    if (newBase !== base) fs.renameSync(skillPath, newPath)
+    return { ok: true, newPath }
   } catch {
-    return false
+    return { ok: false, newPath: skillPath }
   }
 }
 

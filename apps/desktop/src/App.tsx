@@ -60,18 +60,19 @@ export default function App() {
 
   const handleToggle = async (skill: Skill) => {
     const newEnabled = !skill.enabled
-    const ok = await window.skillsAPI.toggle(skill.path, newEnabled)
-    if (ok) {
+    const result = await window.skillsAPI.toggle(skill.path, newEnabled)
+    if (result.ok) {
+      const newDirName = result.newPath.split(/[\\/]/).pop() ?? ''
+      const newId = `${skill.tool}::${newDirName}`
+      const patch = { enabled: newEnabled, path: result.newPath, id: newId }
       setTools((prev) =>
         prev.map((t) => ({
           ...t,
-          skills: t.skills.map((s) =>
-            s.id === skill.id ? { ...s, enabled: newEnabled } : s
-          ),
+          skills: t.skills.map((s) => s.id === skill.id ? { ...s, ...patch } : s),
         }))
       )
       if (selectedSkill?.id === skill.id) {
-        setSelectedSkill((prev) => prev ? { ...prev, enabled: newEnabled } : prev)
+        setSelectedSkill((prev) => prev ? { ...prev, ...patch } : prev)
       }
     }
   }
