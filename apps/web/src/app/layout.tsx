@@ -11,13 +11,34 @@ const instrumentSerif = Instrument_Serif({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://sm.idoevergreen.me'),
   title: 'Skills Manager — Universal AI Agent Skills',
   description:
     'Browse, install, enable, and share AI agent skills across all major coding agents in one desktop app.',
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: 'Skills Manager',
+    title: 'Skills Manager — Universal AI Agent Skills',
     description: 'Universal AI agent skills manager for Claude Code, Cursor, Copilot, and more.',
+    url: 'https://sm.idoevergreen.me',
+    siteName: 'Skills Manager',
+    locale: 'en_US',
     type: 'website',
+    images: [
+      {
+        url: '/og.png',
+        width: 1200,
+        height: 630,
+        alt: 'Skills Manager — One place for all your AI skills',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Skills Manager — Universal AI Agent Skills',
+    description: 'Universal AI agent skills manager for Claude Code, Cursor, Copilot, and more.',
+    images: ['/og.png'],
   },
 }
 

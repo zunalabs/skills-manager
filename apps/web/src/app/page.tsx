@@ -67,8 +67,66 @@ const features = [
 ]
 
 export default function Home() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    'name': 'Skills Manager',
+    'operatingSystem': 'macOS, Windows, Linux',
+    'applicationCategory': 'DeveloperApplication',
+    'description': 'Universal AI agent skills manager for Claude Code, Cursor, Copilot, and more.',
+    'offers': {
+      '@type': 'Offer',
+      'price': '0',
+      'priceCurrency': 'USD'
+    },
+    'author': {
+      '@type': 'Organization',
+      'name': 'Zunalabs',
+      'url': 'https://github.com/zunalabs'
+    }
+  }
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': [
+      {
+        '@type': 'Question',
+        'name': 'What are skills?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': "Skills are reusable instruction sets that extend what an AI coding agent can do. They're typically markdown or text files that tell the agent how to handle specific tasks like enforcing commit message formats or following code styles."
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'Which agents are supported?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Currently supported agents include Claude Code, Cursor, Gemini CLI, Windsurf, GitHub Copilot, Goose, OpenAI Codex, OpenCode, Kilo Code, Trae, and Antigravity.'
+        }
+      },
+      {
+        '@type': 'Question',
+        'name': 'Is it free?',
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': 'Yes. Skills Manager is fully open source under the MIT license with no accounts or telemetry.'
+        }
+      }
+    ]
+  }
+
   return (
     <div className="min-h-screen text-white font-sans" style={{ background: '#0a0908' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
 
       {/* Nav */}
       <header
