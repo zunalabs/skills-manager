@@ -29,6 +29,13 @@ jobs:
         working-directory: apps/desktop
         run: npm install --ignore-workspace-root-check
 
+      - name: Fix 7zip-bin permissions (macOS)
+        if: matrix.os == 'macos-latest'
+        working-directory: apps/desktop
+        run: |
+          chmod +x node_modules/7zip-bin/mac/arm64/7za 2>/dev/null || true
+          chmod +x node_modules/7zip-bin/mac/x64/7za 2>/dev/null || true
+
       - name: Build desktop app
         working-directory: apps/desktop
         env:
