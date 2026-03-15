@@ -35,14 +35,44 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "com.xuna.skills-manager",
+    "appId": "com.zunalabs.skills-manager",
     "productName": "Skills Manager",
+    "copyright": "Copyright © 2025 Zunalabs",
     "directories": {
       "output": "release"
     },
     "files": [
       "dist/**/*",
       "dist-electron/**/*"
-    ]
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "target": [
+        { "target": "dmg", "arch": ["arm64", "x64"] }
+      ]
+    },
+    "dmg": {
+      "title": "Skills Manager"
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Development"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "zunalabs",
+      "repo": "skills-manager"
+    }
   }
 }

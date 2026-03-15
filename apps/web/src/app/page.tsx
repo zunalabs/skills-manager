@@ -138,27 +138,37 @@ export default function Home() {
             className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16 animate-fade-up delay-300"
           >
             <a
-              href="https://github.com/zunalabs/skills-manager"
+              href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-arm64.dmg"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-white text-black text-sm font-semibold px-6 py-3 rounded-full hover:bg-neutral-200 transition-colors"
             >
-              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden>
-                <path d="M8 2v8M8 10L5 7M8 10l3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M2 13h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <svg width="14" height="14" viewBox="0 0 814 1000" fill="currentColor" aria-hidden>
+                <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-43.4-150.3-109.7C172 420.8 198.5 180 286.7 90.8c40.8-41.7 94.8-66.8 151.8-66.8 59.2 0 105 42.1 161.8 42.1 55.3 0 89.7-42.1 161.8-42.1 64.7 0 114.7 26.8 155.5 66.8zm-66-127.5c-22.6 26.8-61.5 52.6-96.5 47.6-2.6 0-5.2-.6-7.8-.6 0-3.9.6-7.8.6-12.3 0-57.4 31.1-109.7 79.3-136.5 22-12.9 65.9-27.5 98.2-27.5 1.3 0 2.6.6 3.9.6.6 3.9.6 7.2.6 10.4 0 50.5-20.7 101-78.3 118.3z"/>
               </svg>
               Download for Mac
+            </a>
+            <a
+              href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-Setup.exe"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-[#858585] border border-[rgba(255,255,255,0.1)] px-6 py-3 rounded-full hover:text-white hover:border-[rgba(255,255,255,0.2)] transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
+                <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
+              </svg>
+              Download for Windows
             </a>
             <a
               href="https://github.com/zunalabs/skills-manager"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-[#858585] border border-[rgba(255,255,255,0.1)] px-6 py-3 rounded-full hover:text-white hover:border-[rgba(255,255,255,0.2)] transition-colors"
+              className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white transition-colors"
             >
               <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor" aria-hidden>
                 <path d="M7.5 0C3.36 0 0 3.36 0 7.5c0 3.31 2.15 6.12 5.13 7.11.38.07.52-.16.52-.36v-1.27c-2.1.46-2.54-.99-2.54-.99-.34-.87-.84-1.1-.84-1.1-.69-.47.05-.46.05-.46.76.05 1.16.78 1.16.78.67 1.15 1.77.82 2.2.63.07-.49.26-.82.48-1.01-1.68-.19-3.44-.84-3.44-3.73 0-.82.29-1.5.78-2.02-.08-.19-.34-.96.07-2 0 0 .64-.2 2.08.77a7.26 7.26 0 0 1 1.9-.26c.64 0 1.29.09 1.9.26 1.44-.97 2.08-.77 2.08-.77.41 1.04.15 1.81.07 2 .49.53.78 1.2.78 2.02 0 2.9-1.77 3.54-3.45 3.73.27.23.51.69.51 1.39v2.06c0 .2.13.44.52.36A7.51 7.51 0 0 0 15 7.5C15 3.36 11.64 0 7.5 0Z" />
               </svg>
-              View on GitHub
+              GitHub
             </a>
           </div>
 
@@ -283,14 +293,24 @@ export default function Home() {
           <p className="text-sm text-[#858585] mb-8">
             Free and open source. Works on macOS, Windows, and Linux.
           </p>
-          <a
-            href="https://github.com/zunalabs/skills-manager"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-white text-black text-sm font-semibold px-6 py-3 rounded-full hover:bg-neutral-200 transition-colors"
-          >
-            Download Skills Manager
-          </a>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-arm64.dmg"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-white text-black text-sm font-semibold px-6 py-3 rounded-full hover:bg-neutral-200 transition-colors"
+            >
+              Download for Mac
+            </a>
+            <a
+              href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-Setup.exe"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-[#858585] border border-[rgba(255,255,255,0.1)] px-6 py-3 rounded-full hover:text-white hover:border-[rgba(255,255,255,0.2)] transition-colors"
+            >
+              Download for Windows
+            </a>
+          </div>
         </ScrollReveal>
       </section>
 
