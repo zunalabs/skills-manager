@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(ELECTRON_MIRROR=\"https://npmmirror.com/mirrors/electron/\" npm install)",
+      "Bash(npx electron-vite build)",
+      "Bash(\"c:/Users/evergreen/Desktop/dev/xuna/apps/git-client/electron.vite.config.ts\":*)",
+      "Bash(gh repo view vercel-labs/skills --json description,readme,defaultBranchRef)",
+      "Bash(gh api repos/vercel-labs/skills/contents --jq '.[].name')",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(mkdir -p \"/c/Users/evergreen/Desktop/dev/skills-manager/apps/desktop\")",
+      "Bash(mkdir -p \"/c/Users/evergreen/Desktop/dev/skills-manager/apps/web\")",
+      "Bash(cp -r \"/c/Users/evergreen/Desktop/dev/xuna/apps/skills-manager/electron\" \"/c/Users/evergreen/Desktop/dev/skills-manager/apps/desktop/\")",
+      "Bash(cp -r \"/c/Users/evergreen/Desktop/dev/xuna/apps/skills-manager/src\" \"/c/Users/evergreen/Desktop/dev/skills-manager/apps/desktop/\")",
+      "Bash(cp -r \"/c/Users/evergreen/Desktop/dev/xuna/apps/skills-manager/public\" \"/c/Users/evergreen/Desktop/dev/skills-manager/apps/desktop/\")",
+      "Bash(cp \"/c/Users/evergreen/Desktop/dev/xuna/apps/skills-manager/index.html\" \"/c/Users/evergreen/Desktop/dev/skills-manager/apps/desktop/\")",
+      "Bash(cp \"/c/Users/evergreen/Desktop/dev/xuna/apps/skills-manager/package.json\" \"/c/Users/evergreen/Desktop/dev/skills-manager/apps/desktop/\")",
+      "Bash(cp \"/c/Users/evergreen/Desktop/dev/xuna/apps/skills-manager/tsconfig.json\" \"/c/Users/evergreen/Desktop/dev/skills-manager/apps/desktop/\")",
+      "Bash(cp \"/c/Users/evergreen/Desktop/dev/xuna/apps/skills-manager/vite.config.ts\" \"/c/Users/evergreen/Desktop/dev/skills-manager/apps/desktop/\")",
+      "Bash(cp \"/c/Users/evergreen/Desktop/dev/xuna/apps/skills-manager/tailwind.config.js\" \"/c/Users/evergreen/Desktop/dev/skills-manager/apps/desktop/\")",
+      "Bash(cp \"/c/Users/evergreen/Desktop/dev/xuna/apps/skills-manager/postcss.config.js\" \"/c/Users/evergreen/Desktop/dev/skills-manager/apps/desktop/\")"
+    ]
+  }
+}

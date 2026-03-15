@@ -90,7 +90,9 @@ export default function Home() {
               </svg>
             </a>
             <a
-              href="#download"
+              href="https://github.com/zunalabs/skills-manager"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-sm bg-white text-black font-medium px-4 py-1.5 rounded-full hover:bg-neutral-200 transition-colors"
             >
               Download
@@ -136,7 +138,9 @@ export default function Home() {
             className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16 animate-fade-up delay-300"
           >
             <a
-              href="#"
+              href="https://github.com/zunalabs/skills-manager"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-white text-black text-sm font-semibold px-6 py-3 rounded-full hover:bg-neutral-200 transition-colors"
             >
               <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -280,7 +284,9 @@ export default function Home() {
             Free and open source. Works on macOS, Windows, and Linux.
           </p>
           <a
-            href="#download"
+            href="https://github.com/zunalabs/skills-manager"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-white text-black text-sm font-semibold px-6 py-3 rounded-full hover:bg-neutral-200 transition-colors"
           >
             Download Skills Manager
