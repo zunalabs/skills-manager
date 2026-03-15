@@ -32,7 +32,7 @@ jobs:
       - name: Fix 7zip-bin permissions (macOS)
         if: matrix.os == 'macos-latest'
         working-directory: apps/desktop
-        run: find node_modules/7zip-bin -name "7za" -type f -exec chmod +x {} \;
+        run: find node_modules/7zip-bin -name "7za" -type f -exec chmod +x {} \; 2>/dev/null || true
 
       - name: Build desktop app
         working-directory: apps/desktop
