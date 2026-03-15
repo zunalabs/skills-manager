@@ -120,8 +120,8 @@ export default function Home() {
           </div>
 
           <h1
-            className="text-[3.25rem] sm:text-[4.5rem] md:text-[5.5rem] font-bold leading-[1.05] mb-5 animate-fade-up delay-100"
-            style={{ letterSpacing: '-0.04em' }}
+            className="font-heading text-[2.5rem] sm:text-[3.25rem] md:text-[3.875rem] leading-[1.1] mb-5 animate-fade-up delay-100"
+            style={{ letterSpacing: '-0.01em' }}
           >
             One place for all
             <br />
@@ -212,8 +212,8 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-6">
           <ScrollReveal>
             <h2
-              className="text-[2rem] sm:text-[2.5rem] font-bold text-center mb-3"
-              style={{ letterSpacing: '-0.03em' }}
+              className="font-heading text-[1.75rem] sm:text-[2.25rem] text-center mb-3"
+              style={{ letterSpacing: '-0.01em' }}
             >
               Everything you need
             </h2>
@@ -252,8 +252,8 @@ export default function Home() {
         <div className="max-w-2xl mx-auto px-6">
           <ScrollReveal>
             <h2
-              className="text-[2rem] sm:text-[2.5rem] font-bold text-center mb-14"
-              style={{ letterSpacing: '-0.03em' }}
+              className="font-heading text-[1.75rem] sm:text-[2.25rem] text-center mb-14"
+              style={{ letterSpacing: '-0.01em' }}
             >
               FAQ
             </h2>
@@ -275,8 +275,8 @@ export default function Home() {
         />
         <ScrollReveal className="relative max-w-5xl mx-auto px-6 text-center">
           <h2
-            className="text-[2rem] sm:text-[2.5rem] font-bold mb-4"
-            style={{ letterSpacing: '-0.03em' }}
+            className="font-heading text-[1.75rem] sm:text-[2.25rem] mb-4"
+            style={{ letterSpacing: '-0.01em' }}
           >
             Ready to get started?
           </h2>
