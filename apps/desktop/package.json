@@ -28,7 +28,7 @@
     "7zip-bin": "^5.2.0",
     "concurrently": "^8.2.0",
     "electron": "28.3.3",
-    "electron-builder": "^24.0.0",
+    "electron-builder": "^25.1.8",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.0.0",
