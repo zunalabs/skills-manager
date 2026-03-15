@@ -1,6 +1,7 @@
 {
   "name": "skills-manager",
   "version": "0.1.0",
+  "description": "Desktop app for managing AI agent skills",
   "author": "Zunalabs",
   "private": true,
   "main": "dist-electron/main.js",
@@ -24,6 +25,7 @@
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.0.0",
     "autoprefixer": "^10.4.16",
+    "7zip-bin": "^5.2.0",
     "concurrently": "^8.2.0",
     "electron": "28.3.3",
     "electron-builder": "^24.0.0",
