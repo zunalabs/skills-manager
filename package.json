@@ -6,12 +6,15 @@
     "apps/*"
   ],
   "scripts": {
-    "dev:desktop": "npm run dev --workspace=apps/desktop",
-    "dev:web": "npm run dev --workspace=apps/web",
-    "build:desktop": "npm run build --workspace=apps/desktop",
-    "build:web": "npm run build --workspace=apps/web"
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "dev:desktop": "turbo dev --filter=apps/desktop",
+    "dev:web": "turbo dev --filter=apps/web",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "prettier": "^3.0.0"
+    "prettier": "^3.0.0",
+    "turbo": "^2.7.5"
   }
 }
