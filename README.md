@@ -1,6 +1,6 @@
 # Skills Manager
 
-A universal desktop app for managing AI agent skills across all major coding assistants.
+A universal desktop app for managing AI agent skills across all major coding agents.
 
 ## Apps
 
