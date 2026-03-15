@@ -23,7 +23,7 @@ export default function Sidebar({ skills, selected, onSelect, loading, onToggle 
 
   if (loading) {
     return (
-      <aside className="w-60 flex-shrink-0 border-r border-zinc-800/60 bg-zinc-950 overflow-y-auto">
+      <aside className="w-60 flex-shrink-0 bg-zinc-900/40 rounded-2xl border border-zinc-800/60 overflow-y-auto">
         <div className="px-3 pt-4 space-y-1">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="h-9 rounded-lg bg-zinc-900/60 animate-pulse" style={{ opacity: 1 - i * 0.1 }} />
@@ -35,14 +35,14 @@ export default function Sidebar({ skills, selected, onSelect, loading, onToggle 
 
   if (skills.length === 0) {
     return (
-      <aside className="w-60 flex-shrink-0 border-r border-zinc-800/60 bg-zinc-950 flex items-center justify-center">
+      <aside className="w-60 flex-shrink-0 bg-zinc-900/40 rounded-2xl border border-zinc-800/60 flex items-center justify-center">
         <p className="text-xs text-zinc-600">No skills found</p>
       </aside>
     )
   }
 
   return (
-    <aside className="w-60 flex-shrink-0 border-r border-zinc-800/60 bg-zinc-950 overflow-y-auto">
+    <aside className="w-60 flex-shrink-0 bg-zinc-900/40 rounded-2xl border border-zinc-800/60 overflow-y-auto">
       <div className="px-2 pt-3 pb-4">
         {Object.entries(grouped).map(([tool, toolSkills]) => {
           const isExpanded = expanded[tool]

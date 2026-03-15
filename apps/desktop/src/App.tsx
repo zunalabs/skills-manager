@@ -100,7 +100,7 @@ export default function App() {
           onInstalled={() => { setShowInstallModal(false); loadSkills() }}
         />
       )}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden p-2 gap-2">
         <Sidebar
           skills={filteredSkills}
           selected={selectedSkill}
@@ -108,7 +108,7 @@ export default function App() {
           loading={loading}
           onToggle={handleToggle}
         />
-        <main className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-hidden rounded-l-2xl border border-zinc-800/40">
           {selectedSkill ? (
             <SkillDetail
               skill={selectedSkill}
