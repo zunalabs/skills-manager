@@ -76,7 +76,7 @@ function parseSkillMeta(skillDir: string): SkillMeta {
   }
 }
 
-function readSkillDir(toolName: string, toolPath: string, skillDirName: string): Skill {
+function readSkillDir(toolName: string, toolPath: string, skillDirName: string, disabled = false): Skill {
   const skillPath = path.join(toolPath, skillDirName)
   const meta = parseSkillMeta(skillPath)
 
@@ -91,11 +91,10 @@ function readSkillDir(toolName: string, toolPath: string, skillDirName: string):
     }
   }
 
-  // Disabled if folder name starts with _
-  const isDisabled = skillDirName.startsWith('_')
+  const isDisabled = disabled
 
   return {
-    id: `${toolName}::${skillDirName}`,
+    id: `${toolName}::${disabled ? '.disabled/' : ''}${skillDirName}`,
     name: meta.name || skillDirName,
     description: meta.description || '',
     domain: meta.domain || '',
@@ -121,17 +120,25 @@ function scanAllTools(): ToolSummary[] {
       return { tool: toolName, path: toolPath, exists: false, skillCount: 0, skills: [] }
     }
 
-    let entries: string[] = []
-    try {
-      entries = fs.readdirSync(toolPath).filter((entry) => {
-        const full = path.join(toolPath, entry)
-        return fs.statSync(full).isDirectory()
-      })
-    } catch {
-      entries = []
+    const readDirs = (dirPath: string, disabled: boolean): Skill[] => {
+      let entries: string[] = []
+      try {
+        entries = fs.readdirSync(dirPath).filter((entry) => {
+          if (entry === '.disabled') return false
+          const full = path.join(dirPath, entry)
+          return fs.statSync(full).isDirectory()
+        })
+      } catch {
+        entries = []
+      }
+      return entries.map((dir) => readSkillDir(toolName, dirPath, dir, disabled))
     }
 
-    const skills = entries.map((dir) => readSkillDir(toolName, toolPath, dir))
+    const activeSkills = readDirs(toolPath, false)
+    const disabledDir = path.join(toolPath, '.disabled')
+    const disabledSkills = fs.existsSync(disabledDir) ? readDirs(disabledDir, true) : []
+    const skills = [...activeSkills, ...disabledSkills]
+
     return { tool: toolName, path: toolPath, exists: true, skillCount: skills.length, skills }
   })
 }
@@ -181,20 +188,23 @@ function deleteSkill(skillPath: string): boolean {
 }
 
 function toggleSkill(skillPath: string, enabled: boolean): { ok: boolean; newPath: string } {
-  const dir = path.dirname(skillPath)
-  const base = path.basename(skillPath)
+  const skillName = path.basename(skillPath)
+  const currentDir = path.dirname(skillPath)
   try {
-    let newBase: string
     if (enabled) {
-      // Enable: strip leading _ prefix
-      newBase = base.startsWith('_') ? base.slice(1) : base
+      // Move from .disabled/ back into the active tool directory
+      const toolPath = path.dirname(currentDir)
+      const newPath = path.join(toolPath, skillName)
+      fs.renameSync(skillPath, newPath)
+      return { ok: true, newPath }
     } else {
-      // Disable: add leading _ prefix
-      newBase = base.startsWith('_') ? base : `_${base}`
+      // Move into .disabled/ subfolder within the same tool directory
+      const disabledDir = path.join(currentDir, '.disabled')
+      if (!fs.existsSync(disabledDir)) fs.mkdirSync(disabledDir, { recursive: true })
+      const newPath = path.join(disabledDir, skillName)
+      fs.renameSync(skillPath, newPath)
+      return { ok: true, newPath }
     }
-    const newPath = path.join(dir, newBase)
-    if (newBase !== base) fs.renameSync(skillPath, newPath)
-    return { ok: true, newPath }
   } catch {
     return { ok: false, newPath: skillPath }
   }
@@ -433,6 +443,11 @@ ipcMain.handle('skills:installFromGitHub', async (e, repo: string, targetAgent: 
 ipcMain.handle('skills:openInExplorer', (_e, skillPath: string) => {
   const { shell } = require('electron')
   shell.openPath(skillPath)
+})
+
+ipcMain.handle('skills:openExternal', (_e, url: string) => {
+  const { shell } = require('electron')
+  shell.openExternal(url)
 })
 
 app.whenReady().then(createWindow)

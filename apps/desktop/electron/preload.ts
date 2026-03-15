@@ -20,4 +20,5 @@ contextBridge.exposeInMainWorld('skillsAPI', {
     return () => ipcRenderer.removeAllListeners('skills:installProgress')
   },
   openInExplorer: (skillPath: string) => ipcRenderer.invoke('skills:openInExplorer', skillPath),
+  openExternal: (url: string) => ipcRenderer.invoke('skills:openExternal', url),
 })
