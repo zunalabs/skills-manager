@@ -1,5 +1,8 @@
+import { useState } from 'react'
 import { Skill } from '../types'
 import { ToolIcon } from './ToolIcon'
+
+const PREVIEW_COUNT = 3
 
 interface SidebarProps {
   skills: Skill[]
@@ -10,6 +13,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ skills, selected, onSelect, loading, onToggle }: SidebarProps) {
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({})
+
   const grouped = skills.reduce<Record<string, Skill[]>>((acc, s) => {
     if (!acc[s.tool]) acc[s.tool] = []
     acc[s.tool].push(s)
@@ -39,30 +44,60 @@ export default function Sidebar({ skills, selected, onSelect, loading, onToggle 
   return (
     <aside className="w-60 flex-shrink-0 border-r border-zinc-800/60 bg-zinc-950 overflow-y-auto">
       <div className="px-2 pt-3 pb-4">
-        {Object.entries(grouped).map(([tool, toolSkills]) => (
-          <div key={tool} className="mb-4">
-            {/* Tool group header */}
-            <div className="flex items-center gap-1.5 px-2.5 mb-1 h-7">
-              <span className="flex-shrink-0 opacity-50">
-                <ToolIcon tool={tool} size={12} />
-              </span>
-              <span className="text-[10px] font-medium text-zinc-500 tracking-wide truncate">{tool}</span>
-              <span className="ml-auto text-[10px] text-zinc-700 tabular-nums flex-shrink-0">{toolSkills.length}</span>
-            </div>
+        {Object.entries(grouped).map(([tool, toolSkills]) => {
+          const isExpanded = expanded[tool]
+          const visible = isExpanded ? toolSkills : toolSkills.slice(0, PREVIEW_COUNT)
+          const hidden = toolSkills.length - PREVIEW_COUNT
 
-            <div className="space-y-px">
-              {toolSkills.map((skill) => (
-                <SkillRow
-                  key={skill.id}
-                  skill={skill}
-                  selected={selected?.id === skill.id}
-                  onSelect={onSelect}
-                  onToggle={onToggle}
-                />
-              ))}
+          return (
+            <div key={tool} className="mb-4">
+              {/* Tool group header */}
+              <div className="flex items-center gap-1.5 px-2.5 mb-1 h-7">
+                <span className="flex-shrink-0 opacity-50">
+                  <ToolIcon tool={tool} size={12} />
+                </span>
+                <span className="text-[10px] font-medium text-zinc-500 tracking-wide truncate">{tool}</span>
+                <span className="ml-auto text-[10px] text-zinc-700 tabular-nums flex-shrink-0">{toolSkills.length}</span>
+              </div>
+
+              <div className="space-y-px">
+                {visible.map((skill) => (
+                  <SkillRow
+                    key={skill.id}
+                    skill={skill}
+                    selected={selected?.id === skill.id}
+                    onSelect={onSelect}
+                    onToggle={onToggle}
+                  />
+                ))}
+              </div>
+
+              {/* See more / less */}
+              {toolSkills.length > PREVIEW_COUNT && (
+                <button
+                  onClick={() => setExpanded((prev) => ({ ...prev, [tool]: !prev[tool] }))}
+                  className="w-full mt-1 px-2.5 py-1.5 text-left text-[11px] text-zinc-600 hover:text-zinc-400 transition-colors flex items-center gap-1.5"
+                >
+                  {isExpanded ? (
+                    <>
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                        <path d="M2 6.5l3-3 3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Show less
+                    </>
+                  ) : (
+                    <>
+                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                        <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      {hidden} more
+                    </>
+                  )}
+                </button>
+              )}
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </aside>
   )
