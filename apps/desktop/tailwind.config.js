@@ -4,6 +4,9 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        heading: ['Instrument Serif', 'Georgia', 'serif'],
+      },
       colors: {
         surface: {
           DEFAULT: '#09090b',

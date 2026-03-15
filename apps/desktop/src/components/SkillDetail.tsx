@@ -69,7 +69,7 @@ export default function SkillDetail({ skill, onToggle, onDelete }: SkillDetailPr
           <div className="flex-1 min-w-0">
             {/* Name + status badges */}
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <h1 className="text-sm font-semibold text-zinc-100 leading-tight">{skill.name}</h1>
+              <h1 className="font-heading text-base text-zinc-100 leading-tight">{skill.name}</h1>
               <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md border ${
                 skill.enabled
                   ? 'bg-green-500/10 text-green-400 border-green-500/20'
@@ -374,21 +374,21 @@ function MarkdownView({ content }: { content: string }) {
 
     if (line.startsWith('### ')) {
       elements.push(
-        <h3 key={key++} className="text-sm font-semibold text-zinc-200 mt-6 mb-2">
+        <h3 key={key++} className="font-heading text-sm text-zinc-200 mt-6 mb-2">
           {line.slice(4)}
         </h3>
       )
       i++
     } else if (line.startsWith('## ')) {
       elements.push(
-        <h2 key={key++} className="text-sm font-semibold text-zinc-100 mt-7 mb-3 pb-2 border-b border-zinc-800">
+        <h2 key={key++} className="font-heading text-base text-zinc-100 mt-7 mb-3 pb-2 border-b border-zinc-800">
           {line.slice(3)}
         </h2>
       )
       i++
     } else if (line.startsWith('# ')) {
       elements.push(
-        <h1 key={key++} className="text-base font-semibold text-zinc-100 mt-4 mb-3">
+        <h1 key={key++} className="font-heading text-lg text-zinc-100 mt-4 mb-3">
           {line.slice(2)}
         </h1>
       )
