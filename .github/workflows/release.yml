@@ -7,15 +7,7 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        include:
-          - os: macos-latest
-            platform: mac
-          - os: windows-latest
-            platform: win
-
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +15,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
       - name: Install dependencies
         run: npm install
@@ -34,15 +25,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run electron:build
 
-      - name: Upload artifacts (Mac)
-        if: matrix.platform == 'mac'
-        uses: actions/upload-artifact@v4
-        with:
-          name: mac-build
-          path: apps/desktop/release/*.dmg
-
-      - name: Upload artifacts (Windows)
-        if: matrix.platform == 'win'
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: win-build
@@ -57,12 +40,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download Mac build
-        uses: actions/download-artifact@v4
-        with:
-          name: mac-build
-          path: dist/mac
-
       - name: Download Windows build
         uses: actions/download-artifact@v4
         with:
@@ -72,9 +49,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: |
-            dist/mac/*.dmg
-            dist/win/*.exe
+          files: dist/win/*.exe
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
