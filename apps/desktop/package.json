@@ -45,9 +45,13 @@
     "directories": {
       "output": "release"
     },
+    "asar": true,
     "files": [
       "dist/**/*",
-      "dist-electron/**/*"
+      "dist-electron/**/*",
+      "!**/*.map",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,readme.md,*.ts}",
+      "!**/node_modules/.bin"
     ],
     "mac": {
       "category": "public.app-category.developer-tools",
@@ -61,12 +65,14 @@
     "win": {
       "target": [
         { "target": "nsis", "arch": ["x64"] }
-      ]
+      ],
+      "compression": "maximum"
     },
     "nsis": {
       "oneClick": true,
       "perMachine": false,
-      "artifactName": "Skills-Manager-Setup.exe"
+      "artifactName": "Skills-Manager-Setup.exe",
+      "compression": "lzma"
     },
     "linux": {
       "target": ["AppImage"],
