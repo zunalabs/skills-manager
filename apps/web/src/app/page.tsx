@@ -1,7 +1,16 @@
+'use client'
+
 import Faq from './Faq'
 import { AgentIcon } from './AgentIcon'
 import AppMockup from './AppMockup'
 import ScrollReveal from './ScrollReveal'
+import { motion } from 'framer-motion'
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 16 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const, delay },
+})
 
 const agents = [
   'Claude Code',
@@ -162,30 +171,35 @@ export default function Home() {
         />
 
         <div className="relative max-w-5xl mx-auto px-6 pt-24 pb-6 text-center">
-          <div className="animate-fade-up">
+          <motion.div {...fadeUp(0)}>
             <span className="inline-flex items-center gap-2 text-xs text-[#858585] border border-[rgba(255,255,255,0.1)] rounded-full px-3 py-1 mb-8">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-dot inline-block" />
               Open source · Free forever
             </span>
-          </div>
+          </motion.div>
 
-          <h1
-            className="font-heading text-[2.5rem] sm:text-[3.25rem] md:text-[3.875rem] leading-[1.1] mb-5 animate-fade-up delay-100"
+          <motion.h1
+            className="font-heading text-[2.5rem] sm:text-[3.25rem] md:text-[3.875rem] leading-[1.1] mb-5"
             style={{ letterSpacing: '-0.01em' }}
+            {...fadeUp(0.1)}
           >
             One place for all
             <br />
             your AI skills.
-          </h1>
+          </motion.h1>
 
-          <p className="text-[1.0625rem] leading-relaxed text-[#858585] max-w-sm mx-auto mb-10 animate-fade-up delay-200">
+          <motion.p
+            className="text-sm leading-relaxed text-[#858585] max-w-sm mx-auto mb-10"
+            {...fadeUp(0.2)}
+          >
             Install, manage, and share skills across every major coding agent —
             Claude Code, Cursor, Copilot, and more.
-          </p>
+          </motion.p>
 
-          <div
+          <motion.div
             id="download"
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16 animate-fade-up delay-300"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16"
+            {...fadeUp(0.3)}
           >
             <a
               href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-Setup.exe"
@@ -216,10 +230,15 @@ export default function Home() {
               </svg>
               GitHub
             </a>
-          </div>
+          </motion.div>
 
           {/* App mockup — floats gently */}
-          <div className="relative animate-fade-up delay-400">
+          <motion.div
+            className="relative"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+          >
             <div
               className="pointer-events-none absolute -inset-x-8 -top-8 bottom-0"
               style={{
@@ -227,10 +246,13 @@ export default function Home() {
                   'radial-gradient(ellipse 70% 60% at 50% 80%, rgba(124,58,237,0.1) 0%, transparent 70%)',
               }}
             />
-            <div className="animate-float">
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 4, ease: 'easeInOut', repeat: Infinity }}
+            >
               <AppMockup />
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
