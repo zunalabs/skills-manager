@@ -24,7 +24,7 @@ export function LampContainer({
           style={{
             backgroundImage: 'conic-gradient(var(--conic-position), var(--tw-gradient-stops))',
           }}
-          className="absolute bottom-0 right-1/2 h-40 w-[20rem] bg-gradient-conic from-violet-600 via-transparent to-transparent [--conic-position:from_70deg_at_center_top]"
+          className="absolute bottom-0 right-1/2 h-40 w-[20rem] bg-gradient-conic from-white/15 via-transparent to-transparent [--conic-position:from_70deg_at_center_top]"
         >
           <div
             className="absolute w-32 h-full left-0 bottom-0 z-10 [mask-image:linear-gradient(to_right,white,transparent)]"
@@ -40,7 +40,7 @@ export function LampContainer({
           style={{
             backgroundImage: 'conic-gradient(var(--conic-position), var(--tw-gradient-stops))',
           }}
-          className="absolute bottom-0 left-1/2 h-40 w-[20rem] bg-gradient-conic from-transparent via-transparent to-violet-600 [--conic-position:from_290deg_at_center_top]"
+          className="absolute bottom-0 left-1/2 h-40 w-[20rem] bg-gradient-conic from-transparent via-transparent to-white/15 [--conic-position:from_290deg_at_center_top]"
         >
           <div
             className="absolute w-32 h-full right-0 bottom-0 z-10 [mask-image:linear-gradient(to_left,white,transparent)]"
@@ -51,7 +51,7 @@ export function LampContainer({
         {/* Center glow blob */}
         <div
           className="absolute bottom-0 left-1/2 -translate-x-1/2 z-20 h-20 w-64 rounded-full opacity-50 blur-3xl"
-          style={{ background: 'rgba(139,92,246,0.8)' }}
+          style={{ background: 'rgba(255,255,255,0.15)' }}
         />
 
         {/* Center hot spot */}
@@ -60,7 +60,7 @@ export function LampContainer({
           whileInView={{ width: '12rem' }}
           transition={{ delay: 0.3, duration: 0.8, ease: 'easeInOut' }}
           className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 h-16 rounded-full blur-2xl"
-          style={{ background: 'rgba(167,139,250,0.6)' }}
+          style={{ background: 'rgba(255,255,255,0.2)' }}
         />
 
         {/* Horizontal beam line */}
@@ -69,7 +69,7 @@ export function LampContainer({
           whileInView={{ width: '20rem' }}
           transition={{ delay: 0.3, duration: 0.8, ease: 'easeInOut' }}
           className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 h-px"
-          style={{ background: 'rgba(196,181,253,0.9)' }}
+          style={{ background: 'rgba(255,255,255,0.6)' }}
         />
 
         {/* Bottom fade to bg */}

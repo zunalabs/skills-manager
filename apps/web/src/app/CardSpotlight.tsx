@@ -6,7 +6,7 @@ import React, { MouseEvent as ReactMouseEvent } from 'react'
 export function CardSpotlight({
   children,
   radius = 300,
-  color = 'rgba(124,58,237,0.12)',
+  color = 'rgba(255,255,255,0.06)',
   className,
   style,
   ...props

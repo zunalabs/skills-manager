@@ -38,7 +38,7 @@ export function TracingBeam({
     <motion.div ref={ref} className={`relative w-full ${className ?? ''}`}>
       <div className="absolute top-3 left-8 hidden md:block">
         <div className="ml-[27px] flex h-4 w-4 items-center justify-center rounded-full border border-[rgba(255,255,255,0.1)]">
-          <div className="h-2 w-2 rounded-full bg-violet-500 opacity-70" />
+          <div className="h-2 w-2 rounded-full bg-white opacity-30" />
         </div>
         <svg
           viewBox={`0 0 20 ${svgHeight}`}
@@ -67,10 +67,10 @@ export function TracingBeam({
               y1={y1}
               y2={y2}
             >
-              <stop stopColor="#7c3aed" stopOpacity="0" />
-              <stop stopColor="#7c3aed" />
-              <stop offset="0.5" stopColor="#a855f7" />
-              <stop offset="1" stopColor="#c084fc" stopOpacity="0" />
+              <stop stopColor="#ffffff" stopOpacity="0" />
+              <stop stopColor="#ffffff" stopOpacity="0.5" />
+              <stop offset="0.5" stopColor="#ffffff" stopOpacity="0.3" />
+              <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
             </motion.linearGradient>
           </defs>
         </svg>

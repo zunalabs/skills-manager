@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Faq from './Faq'
 import { AgentIcon } from './AgentIcon'
 import ScrollReveal from './ScrollReveal'
@@ -9,6 +10,7 @@ import { TracingBeam } from './TracingBeam'
 import { ShootingStars } from './ShootingStars'
 import { MovingBorderButton } from './MovingBorder'
 import { LampContainer } from './LampContainer'
+import { HeroHighlight, Highlight } from './HeroHighlight'
 import { motion } from 'framer-motion'
 
 const fadeUp = (delay = 0) => ({
@@ -81,6 +83,15 @@ const features = [
 ]
 
 export default function Home() {
+  const [downloads, setDownloads] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch('/api/downloads')
+      .then((r) => r.json())
+      .then((d) => setDownloads(d.total))
+      .catch(() => {})
+  }, [])
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
@@ -168,20 +179,14 @@ export default function Home() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <ShootingStars minDelay={800} maxDelay={3000} starWidth={12} />
-        <Spotlight className="-top-40 left-0 md:-top-20 md:left-60" fill="rgba(124,58,237,1)" />
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124,58,237,0.12) 0%, transparent 70%)',
-          }}
-        />
+        <Spotlight className="-top-40 left-0 md:-top-20 md:left-60" fill="white" />
 
-        <div className="relative max-w-5xl mx-auto px-6 pt-24 pb-6 text-center">
+        <HeroHighlight className="pt-24 pb-6">
+          <div className="relative max-w-5xl mx-auto px-6 text-center">
           <motion.div {...fadeUp(0)}>
             <span className="inline-flex items-center gap-2 text-xs text-[#858585] border border-[rgba(255,255,255,0.1)] rounded-full px-3 py-1 mb-8">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-dot inline-block" />
-              Open source · Free forever
+              Open source · Free forever{downloads != null && ` · ${downloads.toLocaleString()} downloads`}
             </span>
           </motion.div>
 
@@ -190,9 +195,8 @@ export default function Home() {
             style={{ letterSpacing: '-0.01em' }}
             {...fadeUp(0.1)}
           >
-            One place for all
-            <br />
-            your AI skills.
+            One place for{' '}
+            <Highlight>all your AI skills.</Highlight>
           </motion.h1>
 
           <motion.p
@@ -241,7 +245,7 @@ export default function Home() {
               className="pointer-events-none absolute -inset-x-8 -top-8 bottom-0"
               style={{
                 background:
-                  'radial-gradient(ellipse 70% 60% at 50% 80%, rgba(124,58,237,0.1) 0%, transparent 70%)',
+                  'radial-gradient(ellipse 70% 60% at 50% 80%, rgba(255,255,255,0.04) 0%, transparent 70%)',
               }}
             />
             <motion.div
@@ -255,7 +259,8 @@ export default function Home() {
               />
             </motion.div>
           </motion.div>
-        </div>
+          </div>
+        </HeroHighlight>
       </section>
 
       {/* Agent marquee */}
@@ -353,7 +358,7 @@ export default function Home() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse 60% 80% at 50% 100%, rgba(124,58,237,0.1) 0%, transparent 70%)',
+              'radial-gradient(ellipse 60% 80% at 50% 100%, rgba(255,255,255,0.04) 0%, transparent 70%)',
           }}
         />
         <ScrollReveal className="relative max-w-5xl mx-auto px-6 text-center">

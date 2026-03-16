@@ -14,7 +14,7 @@ export function MovingBorderButton({
   as: Component = 'button',
   containerClassName = '',
   innerClassName = '',
-  borderColor = 'rgba(168,85,247,0.8)',
+  borderColor = 'rgba(255,255,255,0.5)',
   borderRadius = '9999px',
   duration = 3000,
   ...props
