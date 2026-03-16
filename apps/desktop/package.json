@@ -65,9 +65,7 @@
     },
     "nsis": {
       "oneClick": true,
-      "perMachine": false,
-      "installerIcon": "build/icon.ico",
-      "uninstallerIcon": "build/icon.ico"
+      "perMachine": false
     },
     "linux": {
       "target": ["AppImage"],
