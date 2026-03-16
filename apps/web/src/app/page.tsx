@@ -2,7 +2,6 @@
 
 import Faq from './Faq'
 import { AgentIcon } from './AgentIcon'
-import AppMockup from './AppMockup'
 import ScrollReveal from './ScrollReveal'
 import { Spotlight } from './Spotlight'
 import { CardSpotlight } from './CardSpotlight'
@@ -231,7 +230,7 @@ export default function Home() {
             </span>
           </motion.div>
 
-          {/* App mockup — floats gently */}
+          {/* App screenshot — floats gently */}
           <motion.div
             className="relative"
             initial={{ opacity: 0, y: 24 }}
@@ -249,7 +248,11 @@ export default function Home() {
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, ease: 'easeInOut', repeat: Infinity }}
             >
-              <AppMockup />
+              <img
+                src="/sm.PNG"
+                alt="Skills Manager app screenshot"
+                className="rounded-xl border border-[rgba(255,255,255,0.08)] shadow-2xl w-full max-w-3xl mx-auto"
+              />
             </motion.div>
           </motion.div>
         </div>
