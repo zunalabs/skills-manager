@@ -65,14 +65,13 @@
     "win": {
       "target": [
         { "target": "nsis", "arch": ["x64"] }
-      ],
-      "compression": "maximum"
+      ]
     },
     "nsis": {
       "oneClick": true,
       "perMachine": false,
       "artifactName": "Skills-Manager-Setup.exe",
-      "compression": "lzma"
+      "compression": "maximum"
     },
     "linux": {
       "target": ["AppImage"],
