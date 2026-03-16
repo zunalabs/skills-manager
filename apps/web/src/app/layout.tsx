@@ -7,6 +7,7 @@ import './globals.css'
 const instrumentSerif = Instrument_Serif({
   weight: '400',
   subsets: ['latin'],
+  display: 'swap',
   variable: '--font-heading',
 })
 

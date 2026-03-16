@@ -4,6 +4,12 @@ import Faq from './Faq'
 import { AgentIcon } from './AgentIcon'
 import AppMockup from './AppMockup'
 import ScrollReveal from './ScrollReveal'
+import { Spotlight } from './Spotlight'
+import { CardSpotlight } from './CardSpotlight'
+import { TracingBeam } from './TracingBeam'
+import { ShootingStars } from './ShootingStars'
+import { MovingBorderButton } from './MovingBorder'
+import { LampContainer } from './LampContainer'
 import { motion } from 'framer-motion'
 
 const fadeUp = (delay = 0) => ({
@@ -143,7 +149,7 @@ export default function Home() {
         style={{ background: 'rgba(10,9,8,0.85)' }}
       >
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-          <span className="text-sm font-semibold tracking-tight">Skills Manager</span>
+          <span className="font-heading text-base tracking-tight">Skills Manager</span>
           <nav className="flex items-center gap-6">
             <a
               href="https://github.com/zunalabs/skills-manager"
@@ -162,11 +168,13 @@ export default function Home() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
+        <ShootingStars minDelay={800} maxDelay={3000} starWidth={12} />
+        <Spotlight className="-top-40 left-0 md:-top-20 md:left-60" fill="rgba(124,58,237,1)" />
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124,58,237,0.18) 0%, transparent 70%)',
+              'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124,58,237,0.12) 0%, transparent 70%)',
           }}
         />
 
@@ -201,17 +209,19 @@ export default function Home() {
             className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16"
             {...fadeUp(0.3)}
           >
-            <a
+            <MovingBorderButton
+              as="a"
               href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-Setup.exe"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-white text-black text-sm font-semibold px-6 py-3 rounded-full hover:bg-neutral-200 transition-colors"
+              containerClassName="h-[46px]"
+              innerClassName="gap-2 bg-white text-black text-sm font-semibold px-6 rounded-full hover:bg-neutral-100 transition-colors"
             >
               <svg width="15" height="15" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
                 <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
               </svg>
               Download for Windows
-            </a>
+            </MovingBorderButton>
             <span className="inline-flex items-center gap-2 text-sm text-[#555555] border border-[rgba(255,255,255,0.06)] px-6 py-3 rounded-full cursor-not-allowed">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d="M16.65 13.2c-.02-2 1.65-2.96 1.73-3.01-0.94-1.37-2.4-1.56-2.91-1.58-1.24-.13-2.42.73-3.05.73-.63 0-1.6-.71-2.63-.69-1.35.02-2.6.79-3.29 2-1.41 2.43-.36 6.03 1 8 .66.97 1.45 2.06 2.48 2.02 1-.04 1.37-.64 2.58-.64 1.21 0 1.55.64 2.6.62 1.08-.02 1.76-0.98 2.41-1.95.76-1.1 1.07-2.17 1.08-2.23-.02-.01-2.07-.79-2.1-3.27Z"/>
@@ -219,17 +229,6 @@ export default function Home() {
               </svg>
               Mac — coming soon
             </span>
-            <a
-              href="https://github.com/zunalabs/skills-manager"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white transition-colors"
-            >
-              <svg width="15" height="15" viewBox="0 0 15 15" fill="currentColor" aria-hidden>
-                <path d="M7.5 0C3.36 0 0 3.36 0 7.5c0 3.31 2.15 6.12 5.13 7.11.38.07.52-.16.52-.36v-1.27c-2.1.46-2.54-.99-2.54-.99-.34-.87-.84-1.1-.84-1.1-.69-.47.05-.46.05-.46.76.05 1.16.78 1.16.78.67 1.15 1.77.82 2.2.63.07-.49.26-.82.48-1.01-1.68-.19-3.44-.84-3.44-3.73 0-.82.29-1.5.78-2.02-.08-.19-.34-.96.07-2 0 0 .64-.2 2.08.77a7.26 7.26 0 0 1 1.9-.26c.64 0 1.29.09 1.9.26 1.44-.97 2.08-.77 2.08-.77.41 1.04.15 1.81.07 2 .49.53.78 1.2.78 2.02 0 2.9-1.77 3.54-3.45 3.73.27.23.51.69.51 1.39v2.06c0 .2.13.44.52.36A7.51 7.51 0 0 0 15 7.5C15 3.36 11.64 0 7.5 0Z" />
-              </svg>
-              GitHub
-            </a>
           </motion.div>
 
           {/* App mockup — floats gently */}
@@ -285,62 +284,65 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features */}
-      <section className="border-t border-[rgba(255,255,255,0.06)] py-20">
-        <div className="max-w-5xl mx-auto px-6">
-          <ScrollReveal>
+      {/* Features + FAQ with tracing beam */}
+      <TracingBeam>
+        {/* Features */}
+        <section className="border-t border-[rgba(255,255,255,0.06)]">
+          <LampContainer>
             <h2
-              className="font-heading text-[1.75rem] sm:text-[2.25rem] text-center mb-3"
+              className="font-heading text-[1.75rem] sm:text-[2.25rem] text-center mb-3 text-white"
               style={{ letterSpacing: '-0.01em' }}
             >
               Everything you need
             </h2>
-            <p className="text-center text-sm text-[#858585] mb-14">
+            <p className="text-center text-sm text-[#858585]">
               Stop managing skills manually. Skills Manager handles it all.
             </p>
-          </ScrollReveal>
+          </LampContainer>
 
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2 gap-px rounded-2xl overflow-hidden"
-            style={{ background: 'rgba(255,255,255,0.06)' }}
-          >
-            {features.map((f, i) => (
-              <ScrollReveal key={f.title} delay={i * 80}>
-                <div
-                  className="p-8 group transition-colors h-full"
-                  style={{ background: '#0a0908' }}
-                >
-                  <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center mb-5 border border-[rgba(255,255,255,0.06)] text-[#858585] group-hover:text-white group-hover:border-[rgba(255,255,255,0.12)] transition-colors"
-                    style={{ background: 'rgba(255,255,255,0.03)' }}
-                  >
-                    {f.icon}
-                  </div>
-                  <h3 className="text-sm font-semibold mb-2">{f.title}</h3>
-                  <p className="text-sm text-[#858585] leading-relaxed">{f.description}</p>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="border-t border-[rgba(255,255,255,0.06)] py-20">
-        <div className="max-w-2xl mx-auto px-6">
-          <ScrollReveal>
-            <h2
-              className="font-heading text-[1.75rem] sm:text-[2.25rem] text-center mb-14"
-              style={{ letterSpacing: '-0.01em' }}
+          <div className="max-w-5xl mx-auto px-6 pt-8 pb-20">
+            <div
+              className="grid grid-cols-1 sm:grid-cols-2 gap-px rounded-2xl overflow-hidden"
+              style={{ background: 'rgba(255,255,255,0.06)' }}
             >
-              FAQ
-            </h2>
-          </ScrollReveal>
-          <ScrollReveal delay={100}>
-            <Faq />
-          </ScrollReveal>
-        </div>
-      </section>
+              {features.map((f, i) => (
+                <ScrollReveal key={f.title} delay={i * 80}>
+                  <CardSpotlight
+                    className="p-8 group h-full"
+                    style={{ background: '#0a0908' }}
+                  >
+                    <div
+                      className="relative z-10 w-9 h-9 rounded-xl flex items-center justify-center mb-5 border border-[rgba(255,255,255,0.06)] text-[#858585] group-hover:text-white group-hover:border-[rgba(255,255,255,0.12)] transition-colors"
+                      style={{ background: 'rgba(255,255,255,0.03)' }}
+                    >
+                      {f.icon}
+                    </div>
+                    <h3 className="relative z-10 text-sm font-semibold mb-2">{f.title}</h3>
+                    <p className="relative z-10 text-sm text-[#858585] leading-relaxed">{f.description}</p>
+                  </CardSpotlight>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="border-t border-[rgba(255,255,255,0.06)] py-20">
+          <div className="max-w-2xl mx-auto px-6">
+            <ScrollReveal>
+              <h2
+                className="font-heading text-[1.75rem] sm:text-[2.25rem] text-center mb-14"
+                style={{ letterSpacing: '-0.01em' }}
+              >
+                FAQ
+              </h2>
+            </ScrollReveal>
+            <ScrollReveal delay={100}>
+              <Faq />
+            </ScrollReveal>
+          </div>
+        </section>
+      </TracingBeam>
 
       {/* CTA */}
       <section className="border-t border-[rgba(255,255,255,0.06)] py-20 relative overflow-hidden">
@@ -362,17 +364,19 @@ export default function Home() {
             Free and open source. Works on macOS, Windows, and Linux.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a
+            <MovingBorderButton
+              as="a"
               href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-Setup.exe"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-white text-black text-sm font-semibold px-6 py-3 rounded-full hover:bg-neutral-200 transition-colors"
+              containerClassName="h-[46px]"
+              innerClassName="gap-2 bg-white text-black text-sm font-semibold px-6 rounded-full hover:bg-neutral-100 transition-colors"
             >
               <svg width="15" height="15" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
                 <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
               </svg>
               Download for Windows
-            </a>
+            </MovingBorderButton>
             <span className="inline-flex items-center gap-2 text-sm text-[#555555] border border-[rgba(255,255,255,0.06)] px-6 py-3 rounded-full cursor-not-allowed">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d="M16.65 13.2c-.02-2 1.65-2.96 1.73-3.01-0.94-1.37-2.4-1.56-2.91-1.58-1.24-.13-2.42.73-3.05.73-.63 0-1.6-.71-2.63-.69-1.35.02-2.6.79-3.29 2-1.41 2.43-.36 6.03 1 8 .66.97 1.45 2.06 2.48 2.02 1-.04 1.37-.64 2.58-.64 1.21 0 1.55.64 2.6.62 1.08-.02 1.76-0.98 2.41-1.95.76-1.1 1.07-2.17 1.08-2.23-.02-.01-2.07-.79-2.1-3.27Z"/>
@@ -388,7 +392,7 @@ export default function Home() {
       <footer className="border-t border-[rgba(255,255,255,0.06)] py-8">
         <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <span className="text-sm font-medium text-white">Skills Manager</span>
+            <span className="font-heading text-base text-white">Skills Manager</span>
             <span className="text-sm text-[#858585] ml-2">by Zunalabs</span>
           </div>
           <div className="flex items-center gap-6">
