@@ -65,7 +65,8 @@
     },
     "nsis": {
       "oneClick": true,
-      "perMachine": false
+      "perMachine": false,
+      "artifactName": "Skills-Manager-Setup.exe"
     },
     "linux": {
       "target": ["AppImage"],
