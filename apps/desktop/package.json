@@ -46,6 +46,7 @@
       "output": "release"
     },
     "asar": true,
+    "compression": "maximum",
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
@@ -70,8 +71,7 @@
     "nsis": {
       "oneClick": true,
       "perMachine": false,
-      "artifactName": "Skills-Manager-Setup.exe",
-      "compression": "maximum"
+      "artifactName": "Skills-Manager-Setup.exe"
     },
     "linux": {
       "target": ["AppImage"],
