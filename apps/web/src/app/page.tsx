@@ -401,7 +401,16 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <span className="font-heading text-base text-white">Skills Manager</span>
-            <span className="text-sm text-[#858585] ml-2">by Zunalabs</span>
+            <span className="text-sm text-[#858585] ml-2">by{' '}
+              <a
+                href="https://github.com/orgs/zunalabs/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+              >
+                Zunalabs
+              </a>
+            </span>
           </div>
           <div className="flex items-center gap-6">
             <a
