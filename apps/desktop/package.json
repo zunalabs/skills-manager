@@ -9,7 +9,9 @@
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",
     "preview": "vite preview",
+    "preelectron:dev": "node scripts/gen-icon.js",
     "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "preelectron:build": "node scripts/gen-icon.js",
     "electron:build": "vite build && electron-builder"
   },
   "dependencies": {
@@ -36,12 +38,14 @@
     "vite": "^5.0.0",
     "vite-plugin-electron": "^0.28.0",
     "vite-plugin-electron-renderer": "^0.14.0",
-    "wait-on": "^7.2.0"
+    "wait-on": "^7.2.0",
+    "@resvg/resvg-js": "^2.6.2"
   },
   "build": {
     "appId": "com.zunalabs.skills-manager",
     "productName": "Skills Manager",
     "copyright": "Copyright © 2025 Zunalabs",
+    "icon": "build/icon.png",
     "directories": {
       "output": "release"
     },

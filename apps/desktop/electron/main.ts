@@ -213,12 +213,14 @@ function toggleSkill(skillPath: string, enabled: boolean): { ok: boolean; newPat
 let win: BrowserWindow | null = null
 
 function createWindow() {
+  const iconPath = path.join(__dirname, '../build/icon.png')
   win = new BrowserWindow({
     width: 1280,
     height: 800,
     minWidth: 900,
     minHeight: 600,
     backgroundColor: '#0f1117',
+    icon: fs.existsSync(iconPath) ? iconPath : undefined,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

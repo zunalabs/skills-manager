@@ -7,7 +7,7 @@ export function ToolIcon({ tool, size = 24 }: { tool: string; size?: number }) {
     return <AntigravityIcon size={size} />
   }
   if (tool === 'Goose') {
-    return <img src="/goose.png" width={size} height={size} style={{ objectFit: 'contain' }} alt="Goose" />
+    return <img src="./goose.png" width={size} height={size} style={{ objectFit: 'contain' }} alt="Goose" />
   }
   if (tool === 'GitHub Copilot') {
     return <GitHubCopilotIcon size={size} />
@@ -37,7 +37,7 @@ export function ToolIcon({ tool, size = 24 }: { tool: string; size?: number }) {
   }
 
   if (tool === 'Codex') {
-    return <img src="/codex.png" width={size} height={size} style={{ objectFit: 'contain' }} alt="Codex" />
+    return <img src="./codex.png" width={size} height={size} style={{ objectFit: 'contain' }} alt="Codex" />
   }
 
   return (

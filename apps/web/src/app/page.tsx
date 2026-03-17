@@ -234,6 +234,18 @@ export default function Home() {
             </span>
           </motion.div>
 
+          <motion.p className="text-[11px] text-[#555555] mb-8 -mt-8" {...fadeUp(0.35)}>
+            Windows may show a SmartScreen warning — click &ldquo;More info&rdquo; → &ldquo;Run anyway&rdquo;.{' '}
+            <a
+              href="https://github.com/zunalabs/skills-manager"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-[#858585] transition-colors"
+            >
+              Source code is public.
+            </a>
+          </motion.p>
+
           {/* App screenshot — floats gently */}
           <motion.div
             className="relative"
