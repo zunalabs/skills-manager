@@ -275,6 +275,46 @@ export default function Home() {
         </HeroHighlight>
       </section>
 
+      {/* Video */}
+      {/* Replace YOUTUBE_VIDEO_ID with the actual YouTube video ID once uploaded */}
+      {(() => {
+        const YOUTUBE_VIDEO_ID = 'touNnaNVqo8'
+        if (!YOUTUBE_VIDEO_ID) return null
+        return (
+          <section className="border-t border-[rgba(255,255,255,0.06)] py-20">
+            <div className="max-w-4xl mx-auto px-6">
+              <ScrollReveal>
+                <p className="text-center text-xs uppercase tracking-widest text-[#858585] mb-4">
+                  See it in action
+                </p>
+                <h2
+                  className="font-heading text-[1.75rem] sm:text-[2.25rem] text-center mb-10"
+                  style={{ letterSpacing: '-0.01em' }}
+                >
+                  Watch the demo
+                </h2>
+              </ScrollReveal>
+              <ScrollReveal delay={100}>
+                <div
+                  className="relative rounded-2xl overflow-hidden border border-[rgba(255,255,255,0.08)]"
+                  style={{ aspectRatio: '16/9', background: '#0d0c0b' }}
+                >
+                  <iframe
+                    src={`https://www.youtube-nocookie.com/embed/${YOUTUBE_VIDEO_ID}?rel=0&modestbranding=1`}
+                    title="Skills Manager demo"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full"
+                    style={{ border: 0 }}
+                  />
+                </div>
+              </ScrollReveal>
+            </div>
+          </section>
+        )
+      })()}
+
       {/* Agent marquee */}
       <section className="border-t border-[rgba(255,255,255,0.06)] py-16 overflow-hidden">
         <ScrollReveal>
