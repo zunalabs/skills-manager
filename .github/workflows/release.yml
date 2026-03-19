@@ -6,7 +6,7 @@ on:
       - 'v*'
 
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
     permissions:
       contents: write
@@ -22,20 +22,50 @@ jobs:
         working-directory: apps/desktop
         run: npm install --ignore-workspace-root-check
 
-      - name: Build desktop app
+      - name: Build desktop app (Windows)
         working-directory: apps/desktop
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run electron:build
 
-      - name: Upload artifacts
+      - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: win-build
           path: apps/desktop/release/*.exe
 
+  build-linux:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: apps/desktop
+        run: npm install --ignore-workspace-root-check
+
+      - name: Build desktop app (Linux)
+        working-directory: apps/desktop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run electron:build
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: |
+            apps/desktop/release/*.AppImage
+            apps/desktop/release/*.deb
+
   release:
-    needs: build
+    needs: [build-windows, build-linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -49,10 +79,30 @@ jobs:
           name: win-build
           path: dist/win
 
+      - name: Download Linux build
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-build
+          path: dist/linux
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/win/*.exe
+          files: |
+            dist/win/*.exe
+            dist/linux/*.AppImage
+            dist/linux/*.deb
           generate_release_notes: true
+          body: |
+            ## What's new
+            - Linux support — download the `.AppImage` (runs on any distro) or `.deb` (Debian/Ubuntu)
+            - Windows installer unchanged
+
+            ## Downloads
+            | Platform | File |
+            |----------|------|
+            | Windows | `Skills-Manager-Setup.exe` |
+            | Linux (AppImage) | `Skills-Manager-linux-x64.AppImage` |
+            | Linux (deb) | `Skills-Manager-linux-x64.deb` |
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

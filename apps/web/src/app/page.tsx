@@ -225,6 +225,17 @@ export default function Home() {
               </svg>
               Download for Windows
             </MovingBorderButton>
+            <a
+              href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-linux-x64.AppImage"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <path d="M12 0C5.374 0 0 5.373 0 12c0 6.628 5.374 12 12 12 6.628 0 12-5.372 12-12 0-6.627-5.372-12-12-12zm0 2c2.717 0 5.232 1.01 7.112 2.674L4.673 19.112A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2zm0 20c-2.717 0-5.232-1.01-7.112-2.674L19.327 4.888A9.944 9.944 0 0 1 22 12c0 5.523-4.477 10-10 10z"/>
+              </svg>
+              Download for Linux
+            </a>
             <span className="inline-flex items-center gap-2 text-sm text-[#555555] border border-[rgba(255,255,255,0.06)] px-6 py-3 rounded-full cursor-not-allowed">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d="M16.65 13.2c-.02-2 1.65-2.96 1.73-3.01-0.94-1.37-2.4-1.56-2.91-1.58-1.24-.13-2.42.73-3.05.73-.63 0-1.6-.71-2.63-.69-1.35.02-2.6.79-3.29 2-1.41 2.43-.36 6.03 1 8 .66.97 1.45 2.06 2.48 2.02 1-.04 1.37-.64 2.58-.64 1.21 0 1.55.64 2.6.62 1.08-.02 1.76-0.98 2.41-1.95.76-1.1 1.07-2.17 1.08-2.23-.02-.01-2.07-.79-2.1-3.27Z"/>
@@ -421,7 +432,7 @@ export default function Home() {
             Ready to get started?
           </h2>
           <p className="text-sm text-[#858585] mb-8">
-            Free and open source. Works on macOS, Windows, and Linux.
+            Free and open source. Windows and Linux available now. Mac coming soon.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <MovingBorderButton
@@ -437,6 +448,17 @@ export default function Home() {
               </svg>
               Download for Windows
             </MovingBorderButton>
+            <a
+              href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-linux-x64.AppImage"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <path d="M12 0C5.374 0 0 5.373 0 12c0 6.628 5.374 12 12 12 6.628 0 12-5.372 12-12 0-6.627-5.372-12-12-12zm0 2c2.717 0 5.232 1.01 7.112 2.674L4.673 19.112A9.944 9.944 0 0 1 2 12C2 6.477 6.477 2 12 2zm0 20c-2.717 0-5.232-1.01-7.112-2.674L19.327 4.888A9.944 9.944 0 0 1 22 12c0 5.523-4.477 10-10 10z"/>
+              </svg>
+              Download for Linux
+            </a>
             <span className="inline-flex items-center gap-2 text-sm text-[#555555] border border-[rgba(255,255,255,0.06)] px-6 py-3 rounded-full cursor-not-allowed">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d="M16.65 13.2c-.02-2 1.65-2.96 1.73-3.01-0.94-1.37-2.4-1.56-2.91-1.58-1.24-.13-2.42.73-3.05.73-.63 0-1.6-.71-2.63-.69-1.35.02-2.6.79-3.29 2-1.41 2.43-.36 6.03 1 8 .66.97 1.45 2.06 2.48 2.02 1-.04 1.37-.64 2.58-.64 1.21 0 1.55.64 2.6.62 1.08-.02 1.76-0.98 2.41-1.95.76-1.1 1.07-2.17 1.08-2.23-.02-.01-2.07-.79-2.1-3.27Z"/>
