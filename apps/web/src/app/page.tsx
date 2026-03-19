@@ -227,7 +227,7 @@ export default function Home() {
               Download for Windows
             </MovingBorderButton>
             <a
-              href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-linux-x64.AppImage"
+              href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-linux-x86_64.AppImage"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
@@ -448,7 +448,7 @@ export default function Home() {
               Download for Windows
             </MovingBorderButton>
             <a
-              href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-linux-x64.AppImage"
+              href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-linux-x86_64.AppImage"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
