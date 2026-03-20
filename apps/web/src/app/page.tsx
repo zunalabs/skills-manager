@@ -413,6 +413,65 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Testimonials */}
+        <section className="border-t border-[rgba(255,255,255,0.06)] py-20">
+          <div className="max-w-5xl mx-auto px-6">
+            <ScrollReveal>
+              <p className="text-center text-xs uppercase tracking-widest text-[#858585] mb-12">
+                What people are saying
+              </p>
+            </ScrollReveal>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                {
+                  quote: "This solves a real annoyance. Having one place to manage and push skills across agents is a workflow I didn't know I needed.",
+                  source: 'Product Hunt',
+                },
+                {
+                  quote: "The fragmentation problem across agents is real. The unified view approach makes sense — this is exactly what we needed.",
+                  source: 'Hacker News',
+                },
+                {
+                  quote: "The skills discoverability problem is real — I end up rediscovering the same prompt patterns across projects.",
+                  source: 'Hacker News',
+                },
+                {
+                  quote: "As someone using agents but not at home with NPM, I like this. Simple, direct, does what it says.",
+                  source: 'Hacker News',
+                },
+                {
+                  quote: "Every time I want to test the same skill in Cursor or another agent, it's manual file copying and adjusting paths.",
+                  source: 'Product Hunt',
+                },
+                {
+                  quote: "We need a unified skill marketplace for different agents — good work, this is a step in the right direction.",
+                  source: 'Hacker News',
+                },
+              ].map((t, i) => (
+                <ScrollReveal key={i} delay={i * 60}>
+                  <div className="rounded-xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] p-6 flex flex-col gap-4 h-full">
+                    <p className="text-[#c8c3bc] text-sm leading-relaxed flex-1">&ldquo;{t.quote}&rdquo;</p>
+                    <div className="flex items-center gap-2">
+                      {t.source === 'Product Hunt' ? (
+                        <svg width="14" height="14" viewBox="0 0 58 58" xmlns="http://www.w3.org/2000/svg">
+                          <circle cx="29" cy="29" r="29" fill="#DA552F"/>
+                          <path d="M33.138 29.24h-8.284v-8.772h8.284a4.386 4.386 0 1 1 0 8.772m0-14.62H19.006v29.24h5.848v-8.772h8.284c5.652 0 10.234-4.582 10.234-10.234S38.79 14.62 33.138 14.62" fill="#fff"/>
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" height="14" viewBox="4 4 188 188" width="14">
+                          <path d="m4 4h188v188h-188z" fill="#f60"/>
+                          <path d="m73.2521756 45.01 22.7478244 47.39130083 22.7478244-47.39130083h19.56569631l-34.32352071 64.48661468v41.49338532h-15.98v-41.49338532l-34.32352071-64.48661468z" fill="#fff"/>
+                        </svg>
+                      )}
+                      <span className="text-xs text-[#555]">{t.source}</span>
+                    </div>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* FAQ */}
         <section className="border-t border-[rgba(255,255,255,0.06)] py-20">
           <div className="max-w-2xl mx-auto px-6">
