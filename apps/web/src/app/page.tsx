@@ -210,7 +210,7 @@ export default function Home() {
 
           <motion.div
             id="download"
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-16"
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8"
             {...fadeUp(0.3)}
           >
             <MovingBorderButton
@@ -244,7 +244,7 @@ export default function Home() {
             </span>
           </motion.div>
 
-          <motion.p className="text-[11px] text-[#555555] mb-8 -mt-8" {...fadeUp(0.35)}>
+          <motion.p className="text-[11px] text-[#555555] mb-8" {...fadeUp(0.35)}>
             Windows may show a SmartScreen warning — click &ldquo;More info&rdquo; → &ldquo;Run anyway&rdquo;.{' '}
             <a
               href="https://github.com/zunalabs/skills-manager"
@@ -255,6 +255,23 @@ export default function Home() {
               Source code is public.
             </a>
           </motion.p>
+
+          <motion.div className="flex justify-center mt-4 mb-4" {...fadeUp(0.38)}>
+            <a
+              href="https://www.producthunt.com/products/ai-skills-manager?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-ai-skills-manager"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                alt="AI Skills Manager - One place for all your AI skills | Product Hunt"
+                width={250}
+                height={54}
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1102479&theme=dark&t=1773999174865"
+              />
+            </a>
+          </motion.div>
+
+       
 
           {/* App screenshot — floats gently */}
           <motion.div
