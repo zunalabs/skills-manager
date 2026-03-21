@@ -614,10 +614,7 @@ export default function Home() {
             >
               GitHub
             </a>
-            <a href="/LICENSE" className="text-sm text-[#858585] hover:text-white transition-colors">
-              MIT License
-            </a>
-            <span className="text-sm text-[#858585]">© {new Date().getFullYear()}</span>
+<span className="text-sm text-[#858585]">© {new Date().getFullYear()}</span>
           </div>
         </div>
       </footer>
