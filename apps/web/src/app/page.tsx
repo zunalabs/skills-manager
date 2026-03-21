@@ -13,6 +13,7 @@ import { LampContainer } from './LampContainer'
 import { HeroHighlight, Highlight } from './HeroHighlight'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
+import FeedbackForm from './FeedbackForm'
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 16 },
@@ -161,7 +162,18 @@ export default function Home() {
       >
         <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
           <span className="font-heading text-base tracking-tight">Skills Manager</span>
-          <nav className="flex items-center gap-6">
+          <nav className="flex items-center gap-5">
+            <a
+              href="https://discord.gg/3JhATJGs"
+              className="text-[#858585] hover:text-[#5865F2] transition-colors"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Discord"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+              </svg>
+            </a>
             <a
               href="https://github.com/zunalabs/skills-manager"
               className="text-[#858585] hover:text-white transition-colors"
@@ -215,9 +227,7 @@ export default function Home() {
           >
             <MovingBorderButton
               as="a"
-              href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-Setup.exe"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/api/download?platform=windows"
               containerClassName="h-[46px]"
               innerClassName="gap-2 bg-white text-black text-sm font-semibold px-6 rounded-full hover:bg-neutral-100 transition-colors"
             >
@@ -227,9 +237,7 @@ export default function Home() {
               Download for Windows
             </MovingBorderButton>
             <a
-              href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-linux-x86_64.AppImage"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/api/download?platform=linux"
               className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
             >
               <Image src="/linux.svg" alt="Linux" width={15} height={15} />
@@ -512,9 +520,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <MovingBorderButton
               as="a"
-              href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-Setup.exe"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/api/download?platform=windows"
               containerClassName="h-[46px]"
               innerClassName="gap-2 bg-white text-black text-sm font-semibold px-6 rounded-full hover:bg-neutral-100 transition-colors"
             >
@@ -524,18 +530,10 @@ export default function Home() {
               Download for Windows
             </MovingBorderButton>
             <a
-              href="https://github.com/zunalabs/skills-manager/releases/latest/download/Skills-Manager-linux-x86_64.AppImage"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/api/download?platform=linux"
               className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
             >
-              <svg width="15" height="15" viewBox="0 0 32 32" fill="none" aria-hidden>
-                <path d="M30 16C30 23.728 23.735 30 16 30C8.265 30 2 23.728 2 16C2 8.265 8.265 2 16 2C23.735 2 30 8.265 30 16Z" fill="white"/>
-                <path d="M11.3063 21.91C11.181 21.7232 11.0714 21.4713 10.9824 21.1699C9.37571 19.358 10.6169 16.6916 11.8446 14.881C11.9623 14.6874 12.0905 14.5004 12.2299 14.3215C13.1666 13.1577 13.4089 12.3478 13.481 11.2521C13.4896 11.0481 13.4727 10.7781 13.4533 10.4678C13.3542 8.8837 13.1895 6.25174 16.0159 6.0184C19.5489 5.72669 19.2611 8.97105 19.235 10.8732C19.2339 10.9519 19.2328 11.0285 19.2321 11.1024C19.2225 12.249 19.8209 13.0341 20.4455 13.8535C20.6736 14.1528 20.9052 14.4566 21.112 14.7843C21.1181 14.794 21.1242 14.8038 21.1303 14.8135C22.2218 16.3877 23.2994 18.737 21.7995 20.9653C21.5887 21.7259 21.2695 22.424 20.8434 22.9921C19.3136 25.0052 17.9539 24.8008 16.892 24.6412C16.5717 24.5931 16.2785 24.549 16.0159 24.5711C15.5797 24.5977 15.2301 24.6682 14.9281 24.7292C13.7608 24.9648 13.3046 25.0569 11.3063 21.91Z" fill="#000000"/>
-                <path d="M18.669 17.1525C18.669 18.3503 17.562 19.9021 15.6625 19.8885C13.7039 19.9021 12.8721 18.3503 12.8721 17.1525C12.8721 15.9547 14.169 14.9814 15.7673 14.9814C17.3721 14.9883 18.669 15.9547 18.669 17.1525Z" fill="white" fillOpacity="0.8"/>
-                <path d="M11.2089 25.1021C9.74165 24.2922 7.61283 25.2586 8.38575 23.0671C8.54296 22.5703 8.15649 21.8217 8.4054 21.3384C8.70016 20.7463 9.33553 20.8756 9.71544 20.4809C10.0888 20.0726 10.3246 19.3648 11.0255 19.4736C11.7198 19.5825 12.1849 20.4673 12.6696 21.5562C13.0299 22.3321 14.3006 23.4278 14.2154 24.299C14.1106 25.6329 12.6499 25.8847 11.2089 25.1021Z" fill="#FFA63F"/>
-                <path d="M21.3814 24.7278C22.4556 23.3735 24.8464 23.6525 23.2351 21.7945C22.8945 21.393 22.9993 20.5354 22.5801 20.1679C22.0888 19.7187 21.5451 20.0862 21.0473 19.8548C20.5495 19.603 20.0255 19.1198 19.4163 19.4601C18.8071 19.8072 18.7416 20.7056 18.6827 21.8898C18.6303 22.7405 17.8836 24.1629 18.2831 24.9456C18.8596 26.157 20.3596 25.9937 21.3814 24.7278Z" fill="#FFA63F"/>
-              </svg>
+              <Image src="/linux.svg" alt="Linux" width={15} height={15} />
               Download for Linux
             </a>
             <span className="inline-flex items-center gap-2 text-sm text-[#555555] border border-[rgba(255,255,255,0.06)] px-6 py-3 rounded-full cursor-not-allowed">
@@ -547,6 +545,40 @@ export default function Home() {
             </span>
           </div>
         </ScrollReveal>
+      </section>
+
+      {/* Feedback */}
+      <section className="border-t border-[rgba(255,255,255,0.06)] py-20">
+        <div className="max-w-xl mx-auto px-6">
+          <ScrollReveal>
+            <p className="text-center text-xs uppercase tracking-widest text-[#858585] mb-3">
+              Share your thoughts
+            </p>
+            <h2
+              className="font-heading text-[1.75rem] sm:text-[2.25rem] text-center mb-3"
+              style={{ letterSpacing: '-0.01em' }}
+            >
+              What do you think?
+            </h2>
+            <p className="text-center text-sm text-[#858585] mb-10">
+              Bug reports, feature ideas, or just a note — we read everything.
+            </p>
+          </ScrollReveal>
+          <ScrollReveal delay={100}>
+            <FeedbackForm />
+            <p className="text-center text-xs text-[#555] mt-6">
+              Prefer a conversation?{' '}
+              <a
+                href="https://discord.gg/3JhATJGs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#858585] hover:text-white transition-colors underline"
+              >
+                Join our Discord
+              </a>
+            </p>
+          </ScrollReveal>
+        </div>
       </section>
 
       {/* Footer */}
@@ -566,6 +598,14 @@ export default function Home() {
             </span>
           </div>
           <div className="flex items-center gap-6">
+            <a
+              href="https://discord.gg/3JhATJGs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-[#858585] hover:text-white transition-colors"
+            >
+              Discord
+            </a>
             <a
               href="https://github.com/zunalabs/skills-manager"
               target="_blank"
