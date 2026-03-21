@@ -24,6 +24,11 @@
   box-sizing: border-box;
 }
 
+html {
+  font-size: 15px;
+  zoom: 1.2;
+}
+
 html, body, #root {
   height: 100%;
   margin: 0;

@@ -21,4 +21,7 @@ contextBridge.exposeInMainWorld('skillsAPI', {
   },
   openInExplorer: (skillPath: string) => ipcRenderer.invoke('skills:openInExplorer', skillPath),
   openExternal: (url: string) => ipcRenderer.invoke('skills:openExternal', url),
+  searchMarketplace: (query: string, page: number) => ipcRenderer.invoke('skills:searchMarketplace', query, page),
+  getGithubToken: () => ipcRenderer.invoke('skills:getGithubToken'),
+  setGithubToken: (token: string) => ipcRenderer.invoke('skills:setGithubToken', token),
 })

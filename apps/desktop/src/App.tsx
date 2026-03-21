@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar'
 import SkillDetail from './components/SkillDetail'
 import Header from './components/Header'
 import InstallModal from './components/InstallModal'
+import Marketplace from './components/Marketplace'
 import { ToolIcon } from './components/ToolIcon'
 
 export default function App() {
@@ -14,6 +15,8 @@ export default function App() {
   const [filterTool, setFilterTool] = useState<string>('all')
   const [filterStatus, setFilterStatus] = useState<'all' | 'enabled' | 'disabled'>('all')
   const [showInstallModal, setShowInstallModal] = useState(false)
+  const [installRepo, setInstallRepo] = useState<string | undefined>(undefined)
+  const [view, setView] = useState<'skills' | 'discover'>('skills')
 
   const loadSkills = useCallback(async () => {
     setLoading(true)
@@ -85,7 +88,7 @@ export default function App() {
         search={search}
         onSearch={setSearch}
         onRefresh={loadSkills}
-        onInstall={() => setShowInstallModal(true)}
+        onInstall={() => { setInstallRepo(undefined); setShowInstallModal(true) }}
         totalSkills={allSkills.length}
         totalEnabled={totalEnabled}
         filterTool={filterTool}
@@ -93,33 +96,46 @@ export default function App() {
         filterStatus={filterStatus}
         onFilterStatus={setFilterStatus}
         tools={tools}
+        view={view}
+        onViewChange={setView}
       />
       {showInstallModal && (
         <InstallModal
-          onClose={() => setShowInstallModal(false)}
-          onInstalled={() => { setShowInstallModal(false); loadSkills() }}
+          onClose={() => { setShowInstallModal(false); setInstallRepo(undefined) }}
+          onInstalled={() => { setShowInstallModal(false); setInstallRepo(undefined); loadSkills() }}
+          defaultRepo={installRepo}
         />
       )}
-      <div className="flex flex-1 overflow-hidden p-2 gap-2">
-        <Sidebar
-          skills={filteredSkills}
-          selected={selectedSkill}
-          onSelect={setSelectedSkill}
-          loading={loading}
-          onToggle={handleToggle}
-        />
-        <main className="flex-1 overflow-hidden rounded-l-2xl border border-zinc-800/40">
-          {selectedSkill ? (
-            <SkillDetail
-              skill={selectedSkill}
-              onToggle={handleToggle}
-              onDelete={handleDelete}
+      {view === 'discover' ? (
+        <div className="flex flex-1 overflow-hidden p-2">
+          <div className="flex-1 overflow-hidden rounded-2xl border border-zinc-800/40">
+            <Marketplace
+              onInstall={(repo) => { setInstallRepo(repo); setShowInstallModal(true) }}
             />
-          ) : (
-            <EmptyState tools={tools} loading={loading} />
-          )}
-        </main>
-      </div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-1 overflow-hidden p-2 gap-2">
+          <Sidebar
+            skills={filteredSkills}
+            selected={selectedSkill}
+            onSelect={setSelectedSkill}
+            loading={loading}
+            onToggle={handleToggle}
+          />
+          <main className="flex-1 overflow-hidden rounded-l-2xl border border-zinc-800/40">
+            {selectedSkill ? (
+              <SkillDetail
+                skill={selectedSkill}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+              />
+            ) : (
+              <EmptyState tools={tools} loading={loading} />
+            )}
+          </main>
+        </div>
+      )}
     </div>
   )
 }

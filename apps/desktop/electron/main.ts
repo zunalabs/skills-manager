@@ -1,15 +1,39 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import path from 'path'
 import fs from 'fs'
 import os from 'os'
 import yaml from 'js-yaml'
-import { execSync } from 'child_process'
 import https from 'https'
 
 const home = os.homedir()
 
 // XDG config home (defaults to ~/.config)
 const configHome = process.env.XDG_CONFIG_HOME || path.join(home, '.config')
+
+// ── App config (GitHub token, etc.) ──────────────────────────────────────────
+function getConfigPath() {
+  return path.join(app.getPath('userData'), 'config.json')
+}
+
+function readConfig(): Record<string, string> {
+  try {
+    const raw = fs.readFileSync(getConfigPath(), 'utf-8')
+    return JSON.parse(raw)
+  } catch {
+    return {}
+  }
+}
+
+function writeConfig(data: Record<string, string>) {
+  try {
+    fs.mkdirSync(path.dirname(getConfigPath()), { recursive: true })
+    fs.writeFileSync(getConfigPath(), JSON.stringify(data, null, 2))
+  } catch { /* ignore */ }
+}
+
+function getGithubToken(): string {
+  return process.env.GITHUB_TOKEN || readConfig().githubToken || ''
+}
 
 // All supported tool skill paths
 const TOOL_PATHS: Record<string, string> = {
@@ -280,7 +304,13 @@ function copySkillToAgent(skillPath: string, targetAgent: string): { ok: boolean
 
 // Shared HTTP helper for GitHub API calls
 function httpsGet(url: string, cb: (data: string) => void, errCb: (e: string) => void) {
-  https.get(url, { headers: { 'User-Agent': 'skills-manager', Accept: 'application/vnd.github.v3+json' } }, (res) => {
+  const token = getGithubToken()
+  const headers: Record<string, string> = {
+    'User-Agent': 'skills-manager',
+    'Accept': 'application/vnd.github.v3+json',
+  }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  https.get(url, { headers }, (res) => {
     if (res.statusCode === 302 || res.statusCode === 301) {
       httpsGet(res.headers.location!, cb, errCb)
       return
@@ -309,7 +339,10 @@ interface DiscoverResult {
 // Parses SKILL.md frontmatter for name + description.
 function discoverSkills(repo: string): Promise<DiscoverResult> {
   return new Promise((resolve) => {
-    const [owner, repoName] = repo.replace('https://github.com/', '').replace(/\/$/, '').split('/')
+    const parts = repo.replace('https://github.com/', '').replace(/\/$/, '').split('/')
+    const owner = parts[0]
+    const repoName = parts[1]
+    const subpath = parts.slice(2).join('/') // e.g. '.claude' from 'owner/repo/.claude'
     if (!owner || !repoName) return resolve({ ok: false, skillsBasePath: '', skills: [], error: 'Invalid repo format. Use owner/repo' })
 
     function parseSkillMdFrontmatter(content: string): { name: string; description: string } {
@@ -323,54 +356,79 @@ function discoverSkills(repo: string): Promise<DiscoverResult> {
       }
     }
 
-    function scanDirs(dirs: Array<{ name: string; type: string }>, basePath: string) {
-      const skillDirs = dirs.filter((e) => e.type === 'dir' && !e.name.startsWith('.'))
-      if (skillDirs.length === 0) {
-        resolve({ ok: true, skillsBasePath: basePath, skills: [] })
-        return
-      }
-      const skills: DiscoveredSkill[] = []
-      let pending = skillDirs.length
-      skillDirs.forEach((dir) => {
-        const dirPath = basePath ? `${basePath}/${dir.name}` : dir.name
-        httpsGet(
-          `https://api.github.com/repos/${owner}/${repoName}/contents/${dirPath}`,
-          (raw) => {
-            let files: Array<{ name: string; type: string; download_url: string | null }> = []
-            try { files = JSON.parse(raw) } catch { files = [] }
-            const skillMdFile = files.find((f) => f.name === 'SKILL.md' && f.type === 'file')
-            if (!skillMdFile?.download_url) { if (--pending === 0) resolve({ ok: true, skillsBasePath: basePath, skills }); return }
-            httpsGet(skillMdFile.download_url, (content) => {
-              const meta = parseSkillMdFrontmatter(content)
-              skills.push({ dirName: dir.name, name: meta.name || dir.name, description: meta.description })
-              if (--pending === 0) resolve({ ok: true, skillsBasePath: basePath, skills })
-            }, () => {
-              skills.push({ dirName: dir.name, name: dir.name, description: '' })
-              if (--pending === 0) resolve({ ok: true, skillsBasePath: basePath, skills })
-            })
-          },
-          () => { if (--pending === 0) resolve({ ok: true, skillsBasePath: basePath, skills }) }
-        )
-      })
-    }
+    // Use GitHub's recursive tree API — one request gets all file paths
+    httpsGet(
+      `https://api.github.com/repos/${owner}/${repoName}/git/trees/HEAD?recursive=1`,
+      (raw) => {
+        let tree: { tree?: Array<{ path: string; type: string }> } = {}
+        try { tree = JSON.parse(raw) } catch {
+          return resolve({ ok: false, skillsBasePath: '', skills: [], error: 'Failed to parse GitHub response' })
+        }
+        if (!tree.tree) {
+          const msg = (tree as { message?: string }).message || 'GitHub API error'
+          return resolve({ ok: false, skillsBasePath: '', skills: [], error: msg })
+        }
 
-    httpsGet(`https://api.github.com/repos/${owner}/${repoName}/contents`, (raw) => {
-      let root: Array<{ name: string; type: string }> = []
-      try { root = JSON.parse(raw) } catch { return resolve({ ok: false, skillsBasePath: '', skills: [], error: 'Failed to parse GitHub response' }) }
-      if (!Array.isArray(root)) return resolve({ ok: false, skillsBasePath: '', skills: [], error: (root as { message?: string }).message || 'GitHub API error' })
+        // Find all SKILL.md files in the whole tree
+        const allFiles = tree.tree
+        const allSkillMdPaths = allFiles
+          .filter((f) => (f.type === 'blob' && f.path.toLowerCase().endsWith('/skill.md')) || f.path.toLowerCase() === 'skill.md')
+          .map((f) => f.path)
 
-      const skillsDir = root.find((e) => e.name === 'skills' && e.type === 'dir')
-      if (skillsDir) {
-        httpsGet(`https://api.github.com/repos/${owner}/${repoName}/contents/skills`, (raw2) => {
-          let contents: Array<{ name: string; type: string }> = []
-          try { contents = JSON.parse(raw2) } catch { contents = [] }
-          const dirs = contents.filter((e) => e.type === 'dir')
-          if (dirs.length > 0) { scanDirs(dirs, 'skills') } else { scanDirs(root, '') }
-        }, () => scanDirs(root, ''))
-      } else {
-        scanDirs(root, '')
-      }
-    }, (err) => resolve({ ok: false, skillsBasePath: '', skills: [], error: err }))
+        // If a subpath was given, prefer SKILL.md files under that path.
+        // Also try with a leading dot (e.g. "claude" → ".claude") for common hidden dirs.
+        let skillMdPaths = allSkillMdPaths
+        if (subpath) {
+          const dotSubpath = '.' + subpath.replace(/^\./, '') // ensure leading dot variant
+          const exactMatch = allSkillMdPaths.filter((p) => p.startsWith(subpath + '/'))
+          const dotMatch = allSkillMdPaths.filter((p) => p.startsWith(dotSubpath + '/'))
+          skillMdPaths = exactMatch.length > 0 ? exactMatch : dotMatch.length > 0 ? dotMatch : allSkillMdPaths
+        }
+
+        if (skillMdPaths.length === 0) {
+          return resolve({ ok: true, skillsBasePath: subpath || '', skills: [] })
+        }
+
+        // Determine the common skillsBasePath (parent of all skill dirs)
+        // e.g. ['skills/pdf/SKILL.md', 'skills/docx/SKILL.md'] → basePath='skills'
+        // e.g. ['.claude/skills/foo/SKILL.md'] → basePath='.claude/skills'
+        // e.g. ['SKILL.md'] → basePath='' (single-skill repo)
+        const skillDirPaths = skillMdPaths.map((p) => p.split('/').slice(0, -1).join('/')) // dir containing SKILL.md
+        const isSingleSkill = skillDirPaths.length === 1 && skillDirPaths[0] === ''
+        const skillsBasePath = isSingleSkill ? '' : (() => {
+          // Find common parent
+          const parts0 = skillDirPaths[0].split('/')
+          let common = parts0.slice(0, -1) // parent of the skill dir
+          for (const p of skillDirPaths.slice(1)) {
+            const segs = p.split('/').slice(0, -1)
+            while (common.length > 0 && segs.slice(0, common.length).join('/') !== common.join('/')) {
+              common = common.slice(0, -1)
+            }
+          }
+          return common.join('/')
+        })()
+
+        // Fetch each SKILL.md and build result
+        const skills: DiscoveredSkill[] = []
+        let pending = skillMdPaths.length
+
+        skillMdPaths.forEach((skillMdPath) => {
+          const dirPath = skillMdPath.split('/').slice(0, -1).join('/')
+          const dirName = isSingleSkill ? repoName : (dirPath.split('/').pop() || repoName)
+          const rawUrl = `https://raw.githubusercontent.com/${owner}/${repoName}/HEAD/${skillMdPath}`
+
+          httpsGet(rawUrl, (content) => {
+            const meta = parseSkillMdFrontmatter(content)
+            skills.push({ dirName, name: meta.name || dirName, description: meta.description })
+            if (--pending === 0) resolve({ ok: true, skillsBasePath, skills })
+          }, () => {
+            skills.push({ dirName, name: dirName, description: '' })
+            if (--pending === 0) resolve({ ok: true, skillsBasePath, skills })
+          })
+        })
+      },
+      (err) => resolve({ ok: false, skillsBasePath: '', skills: [], error: err })
+    )
   })
 }
 
@@ -443,13 +501,53 @@ ipcMain.handle('skills:installFromGitHub', async (e, repo: string, targetAgent: 
 })
 
 ipcMain.handle('skills:openInExplorer', (_e, skillPath: string) => {
-  const { shell } = require('electron')
   shell.openPath(skillPath)
 })
 
 ipcMain.handle('skills:openExternal', (_e, url: string) => {
-  const { shell } = require('electron')
   shell.openExternal(url)
+})
+
+ipcMain.handle('skills:getGithubToken', () => {
+  return readConfig().githubToken || ''
+})
+
+ipcMain.handle('skills:setGithubToken', (_e, token: string) => {
+  const config = readConfig()
+  if (token) config.githubToken = token
+  else delete config.githubToken
+  writeConfig(config)
+})
+
+ipcMain.handle('skills:searchMarketplace', (_e, query: string, page: number) => {
+  function doGet(url: string): Promise<{ ok: boolean; data?: any; error?: string }> {
+    return new Promise((resolve) => {
+      const req = https.get(url, {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'skillfish-cli',
+          'Referer': 'https://mcpmarket.com/',
+        }
+      }, (res) => {
+        if ((res.statusCode === 301 || res.statusCode === 302) && res.headers.location) {
+          doGet(res.headers.location).then(resolve)
+          return
+        }
+        let data = ''
+        res.on('data', (chunk) => (data += chunk))
+        res.on('end', () => {
+          try {
+            resolve({ ok: true, data: JSON.parse(data) })
+          } catch {
+            resolve({ ok: false, error: `Registry returned non-JSON (HTTP ${res.statusCode}): ${data.slice(0, 200)}` })
+          }
+        })
+      })
+      req.on('error', (e) => resolve({ ok: false, error: e.message }))
+    })
+  }
+  const params = new URLSearchParams({ q: query, type: 'skills', limit: '24', page: String(page) })
+  return doGet(`https://mcpmarket.com/api/search?${params}`)
 })
 
 app.whenReady().then(createWindow)

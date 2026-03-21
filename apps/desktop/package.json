@@ -16,23 +16,26 @@
     "preelectron:dev": "node scripts/gen-icon.js",
     "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
     "preelectron:build": "node scripts/gen-icon.js",
-    "electron:build": "vite build && electron-builder"
+    "electron:build": "vite build && electron-builder",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "js-yaml": "^4.1.0",
     "lucide-react": "^0.294.0",
-    "js-yaml": "^4.1.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.0.0",
-    "autoprefixer": "^10.4.16",
     "7zip-bin": "^5.2.0",
     "app-builder-bin": "^4.0.0",
+    "autoprefixer": "^10.4.16",
     "concurrently": "^8.2.0",
     "electron": "28.3.3",
     "electron-builder": "^25.1.8",
@@ -42,8 +45,8 @@
     "vite": "^5.0.0",
     "vite-plugin-electron": "^0.28.0",
     "vite-plugin-electron-renderer": "^0.14.0",
-    "wait-on": "^7.2.0",
-    "@resvg/resvg-js": "^2.6.2"
+    "vitest": "^1.6.1",
+    "wait-on": "^7.2.0"
   },
   "build": {
     "appId": "com.zunalabs.skills-manager",
@@ -65,7 +68,13 @@
     "mac": {
       "category": "public.app-category.developer-tools",
       "target": [
-        { "target": "dmg", "arch": ["arm64", "x64"] }
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
       ]
     },
     "dmg": {
@@ -73,7 +82,12 @@
     },
     "win": {
       "target": [
-        { "target": "nsis", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ]
     },
     "nsis": {
@@ -83,8 +97,18 @@
     },
     "linux": {
       "target": [
-        { "target": "AppImage", "arch": ["x64"] },
-        { "target": "deb", "arch": ["x64"] }
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "category": "Development",
       "artifactName": "Skills-Manager-linux-${arch}.${ext}",

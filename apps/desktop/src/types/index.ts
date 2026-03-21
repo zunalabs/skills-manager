@@ -50,6 +50,10 @@ declare global {
       installFromGitHub: (repo: string, targetAgent: string, skillDirNames: string[], skillsBasePath: string) => Promise<{ ok: boolean; installed: string[]; error?: string }>
       onInstallProgress: (cb: (msg: string) => void) => () => void
       openInExplorer: (skillPath: string) => Promise<void>
+      openExternal: (url: string) => Promise<void>
+      searchMarketplace: (query: string, page: number) => Promise<{ ok: boolean; data?: any; error?: string }>
+      getGithubToken: () => Promise<string>
+      setGithubToken: (token: string) => Promise<void>
     }
   }
 }

@@ -2,17 +2,19 @@ import { useState, useEffect, useRef } from 'react'
 import { X, Download, ArrowLeft, Check } from 'lucide-react'
 import { ToolIcon } from './ToolIcon'
 import { DiscoveredSkill } from '../types'
+import { inferSkillDirName } from '../lib/repoUtils'
 
 interface InstallModalProps {
   onClose: () => void
   onInstalled: () => void
+  defaultRepo?: string
 }
 
 type Stage = 'input' | 'select' | 'installing'
 
-export default function InstallModal({ onClose, onInstalled }: InstallModalProps) {
+export default function InstallModal({ onClose, onInstalled, defaultRepo }: InstallModalProps) {
   const [stage, setStage] = useState<Stage>('input')
-  const [repo, setRepo] = useState('')
+  const [repo, setRepo] = useState(defaultRepo ?? '')
   const [fetching, setFetching] = useState(false)
   const [fetchError, setFetchError] = useState('')
 
@@ -57,7 +59,16 @@ export default function InstallModal({ onClose, onInstalled }: InstallModalProps
     if (res.skills.length === 0) { setFetchError('No skills found in this repo'); return }
     setDiscoveredSkills(res.skills)
     setSkillsBasePath(res.skillsBasePath)
-    setSelectedSkills(new Set(res.skills.map((s) => s.dirName)))
+    const inferredDirName = inferSkillDirName(repo.trim())
+    const dirMatch = inferredDirName
+      ? res.skills.find((s) => s.dirName.toLowerCase() === inferredDirName)
+      : undefined
+
+    if (dirMatch) {
+      setSelectedSkills(new Set([dirMatch.dirName]))
+    } else {
+      setSelectedSkills(new Set(res.skills.map((s) => s.dirName)))
+    }
     setStage('select')
   }
 

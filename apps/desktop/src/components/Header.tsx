@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { ToolSummary } from '../types'
+import TokenModal from './TokenModal'
 
 const LANDING_URL = 'https://github.com/zunalabs/skills-manager#readme'
 const DOCS_URL = 'https://github.com/zunalabs/skills-manager'
@@ -16,6 +17,8 @@ interface HeaderProps {
   filterStatus: 'all' | 'enabled' | 'disabled'
   onFilterStatus: (s: 'all' | 'enabled' | 'disabled') => void
   tools: ToolSummary[]
+  view: 'skills' | 'discover'
+  onViewChange: (v: 'skills' | 'discover') => void
 }
 
 export default function Header({
@@ -24,6 +27,7 @@ export default function Header({
   filterTool, onFilterTool,
   filterStatus, onFilterStatus,
   tools,
+  view, onViewChange,
 }: HeaderProps) {
   return (
     <header className="flex-shrink-0 border-b border-zinc-900 bg-[#0a0a0c]">
@@ -34,51 +38,74 @@ export default function Header({
           Skills
         </span>
 
-        <div className="w-px h-3.5 bg-zinc-800 flex-shrink-0" />
-
-        {/* Search */}
-        <div className="relative flex-1 max-w-56">
-          <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600 pointer-events-none" viewBox="0 0 16 16" fill="none">
-            <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.4"/>
-            <path d="M10 10l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-          </svg>
-          <input
-            type="text"
-            placeholder="Search…"
-            value={search}
-            onChange={(e) => onSearch(e.target.value)}
-            className="w-full bg-zinc-900/70 border border-zinc-800/80 rounded-lg pl-8 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors"
-          />
-        </div>
-
-        {/* Tool filter */}
-        <select
-          value={filterTool}
-          onChange={(e) => onFilterTool(e.target.value)}
-          className="bg-zinc-900/70 border border-zinc-800/80 rounded-lg px-2.5 py-1.5 text-xs text-zinc-400 focus:outline-none cursor-pointer hover:border-zinc-700 transition-colors"
-        >
-          <option value="all">All agents</option>
-          {tools.filter((t) => t.exists).map((t) => (
-            <option key={t.tool} value={t.tool}>{t.tool}</option>
-          ))}
-        </select>
-
-        {/* Status filter */}
-        <div className="flex items-center bg-zinc-900/70 border border-zinc-800/80 rounded-lg p-0.5">
-          {(['all', 'enabled', 'disabled'] as const).map((s) => (
+        {/* View toggle */}
+        <div className="flex items-center bg-zinc-900/70 border border-zinc-800/80 rounded-lg p-0.5 flex-shrink-0">
+          {(['skills', 'discover'] as const).map((v) => (
             <button
-              key={s}
-              onClick={() => onFilterStatus(s)}
+              key={v}
+              onClick={() => onViewChange(v)}
               className={`px-2.5 py-1 text-xs rounded-md transition-all capitalize ${
-                filterStatus === s
+                view === v
                   ? 'bg-zinc-800 text-zinc-100'
                   : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
-              {s}
+              {v === 'discover' ? '✦ Discover' : v}
             </button>
           ))}
         </div>
+
+        <div className="w-px h-3.5 bg-zinc-800 flex-shrink-0" />
+
+        {/* Search — skills only */}
+        {view === 'skills' && (
+          <div className="relative flex-1 max-w-56">
+            <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-600 pointer-events-none" viewBox="0 0 16 16" fill="none">
+              <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.4"/>
+              <path d="M10 10l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Search…"
+              value={search}
+              onChange={(e) => onSearch(e.target.value)}
+              className="w-full bg-zinc-900/70 border border-zinc-800/80 rounded-lg pl-8 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors"
+            />
+          </div>
+        )}
+
+        {/* Tool filter — skills only */}
+        {view === 'skills' && (
+          <select
+            value={filterTool}
+            onChange={(e) => onFilterTool(e.target.value)}
+            className="bg-zinc-900/70 border border-zinc-800/80 rounded-lg px-2.5 py-1.5 text-xs text-zinc-400 focus:outline-none cursor-pointer hover:border-zinc-700 transition-colors"
+          >
+            <option value="all">All agents</option>
+            {tools.filter((t) => t.exists).map((t) => (
+              <option key={t.tool} value={t.tool}>{t.tool}</option>
+            ))}
+          </select>
+        )}
+
+        {/* Status filter — skills only */}
+        {view === 'skills' && (
+          <div className="flex items-center bg-zinc-900/70 border border-zinc-800/80 rounded-lg p-0.5">
+            {(['all', 'enabled', 'disabled'] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => onFilterStatus(s)}
+                className={`px-2.5 py-1 text-xs rounded-md transition-all capitalize ${
+                  filterStatus === s
+                    ? 'bg-zinc-800 text-zinc-100'
+                    : 'text-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Right side */}
         <div className="ml-auto flex items-center gap-2 flex-shrink-0">
@@ -122,6 +149,7 @@ export default function Header({
 
 function HelpMenu() {
   const [open, setOpen] = useState(false)
+  const [showToken, setShowToken] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -138,6 +166,8 @@ function HelpMenu() {
   }
 
   return (
+    <>
+      {showToken && <TokenModal onClose={() => setShowToken(false)} />}
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
@@ -176,8 +206,20 @@ function HelpMenu() {
             </svg>
             Docs &amp; repo
           </button>
+          <div className="h-px bg-zinc-800 mx-2" />
+          <button
+            onClick={() => { setOpen(false); setShowToken(true) }}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs text-zinc-300 hover:bg-zinc-800 transition-colors text-left"
+          >
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+              <circle cx="6" cy="7" r="3" stroke="currentColor" strokeWidth="1.4"/>
+              <path d="M9 7h5M12 5.5V8.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+            </svg>
+            GitHub Token
+          </button>
         </div>
       )}
     </div>
+    </>
   )
 }
