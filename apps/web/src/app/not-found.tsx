@@ -1,20 +1,62 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { AgentIcon } from './AgentIcon'
 
-const AGENTS = [
-  'Claude Code',
-  'Cursor',
-  'Gemini CLI',
-  'Windsurf',
-  'GitHub Copilot',
-  'Goose',
-  'Antigravity',
-  'OpenCode',
-  'Kilo Code',
-  'Trae',
-]
+type OS = 'windows' | 'linux' | 'mac' | null
+
+function useDetectedOS(): OS {
+  const [os, setOS] = useState<OS>(null)
+  useEffect(() => {
+    const ua = navigator.userAgent.toLowerCase()
+    if (ua.includes('win')) setOS('windows')
+    else if (ua.includes('linux')) setOS('linux')
+    else if (ua.includes('mac')) setOS('mac')
+  }, [])
+  return os
+}
+
+const WindowsIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
+    <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
+  </svg>
+)
+
+const LinuxIcon = () => (
+  <svg viewBox="0 0 48 48" width="15" height="15" fill="currentColor" aria-hidden>
+    <path d="M24 2C14 2 10 10 10 17c0 4 1.5 7.5 4 10l-2 4c-1 2-3 3-5 4v2c3 0 6-1 8-3l1-1c1 1 3 2 8 2s7-1 8-2l1 1c2 2 5 3 8 3v-2c-2-1-4-2-5-4l-2-4c2.5-2.5 4-6 4-10C38 10 34 2 24 2zm-4 28c-1 0-2-1-2-2s1-2 2-2 2 1 2 2-1 2-2 2zm8 0c-1 0-2-1-2-2s1-2 2-2 2 1 2 2-1 2-2 2z"/>
+  </svg>
+)
+
+function DownloadButton({ os }: { os: OS }) {
+  if (!os) return null
+
+  if (os === 'mac') {
+    return (
+      <p className="text-[#858585] text-xs">
+        macOS coming soon —{' '}
+        <a href="https://github.com/zunalabs/skills-manager" target="_blank" rel="noopener noreferrer" className="underline hover:text-white transition-colors">
+          follow on GitHub
+        </a>
+      </p>
+    )
+  }
+
+  const platform = os === 'linux' ? 'linux' : 'windows'
+  const label = os === 'linux' ? 'Download for Linux' : 'Download for Windows'
+  const icon = os === 'linux' ? <LinuxIcon /> : <WindowsIcon />
+
+  return (
+    <a
+      href={`/api/download?platform=${platform}`}
+      className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black text-sm font-semibold hover:bg-neutral-100 transition-colors"
+    >
+      {icon}
+      {label}
+    </a>
+  )
+}
 
 // Deterministic positions/animations so they don't shift on hydration
 const FLOATERS = [
@@ -33,6 +75,8 @@ const FLOATERS = [
 ]
 
 export default function NotFound() {
+  const os = useDetectedOS()
+
   return (
     <div
       className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden select-none"
@@ -97,12 +141,12 @@ export default function NotFound() {
           the URL was mistyped.
         </p>
 
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-black text-sm font-semibold hover:bg-neutral-100 transition-colors"
-        >
-          Back to home
-        </Link>
+        <div className="flex flex-col items-center gap-3">
+          <DownloadButton os={os} />
+          <Link href="/" className="text-sm text-[#858585] hover:text-white transition-colors">
+            Back to home
+          </Link>
+        </div>
       </div>
     </div>
   )

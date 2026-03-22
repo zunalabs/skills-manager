@@ -86,12 +86,19 @@ const features = [
 
 export default function Home() {
   const [downloads, setDownloads] = useState<number | null>(null)
+  const [detectedOS, setDetectedOS] = useState<'windows' | 'linux' | null>(null)
 
   useEffect(() => {
     fetch('/api/downloads')
       .then((r) => r.json())
       .then((d) => setDownloads(d.total))
       .catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    const ua = navigator.userAgent.toLowerCase()
+    if (ua.includes('linux')) setDetectedOS('linux')
+    else setDetectedOS('windows')
   }, [])
 
   const jsonLd = {
@@ -225,24 +232,48 @@ export default function Home() {
             className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8"
             {...fadeUp(0.3)}
           >
-            <MovingBorderButton
-              as="a"
-              href="/api/download?platform=windows"
-              containerClassName="h-[46px]"
-              innerClassName="gap-2 bg-white text-black text-sm font-semibold px-6 rounded-full hover:bg-neutral-100 transition-colors"
-            >
-              <svg width="15" height="15" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
-                <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
-              </svg>
-              Download for Windows
-            </MovingBorderButton>
-            <a
-              href="/api/download?platform=linux"
-              className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
-            >
-              <Image src="/linux.svg" alt="Linux" width={15} height={15} />
-              Download for Linux
-            </a>
+            {detectedOS === 'linux' ? (
+              <MovingBorderButton
+                as="a"
+                href="/api/download?platform=linux"
+                containerClassName="h-[46px]"
+                innerClassName="gap-2 bg-white text-black text-sm font-semibold px-6 rounded-full hover:bg-neutral-100 transition-colors"
+              >
+                <Image src="/linux.svg" alt="Linux" width={15} height={15} />
+                Download for Linux
+              </MovingBorderButton>
+            ) : (
+              <MovingBorderButton
+                as="a"
+                href="/api/download?platform=windows"
+                containerClassName="h-[46px]"
+                innerClassName="gap-2 bg-white text-black text-sm font-semibold px-6 rounded-full hover:bg-neutral-100 transition-colors"
+              >
+                <svg width="15" height="15" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
+                  <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
+                </svg>
+                Download for Windows
+              </MovingBorderButton>
+            )}
+            {detectedOS === 'linux' ? (
+              <a
+                href="/api/download?platform=windows"
+                className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
+              >
+                <svg width="15" height="15" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
+                  <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
+                </svg>
+                Download for Windows
+              </a>
+            ) : (
+              <a
+                href="/api/download?platform=linux"
+                className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
+              >
+                <Image src="/linux.svg" alt="Linux" width={15} height={15} />
+                Download for Linux
+              </a>
+            )}
             <span className="inline-flex items-center gap-2 text-sm text-[#555555] border border-[rgba(255,255,255,0.06)] px-6 py-3 rounded-full cursor-not-allowed">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d="M16.65 13.2c-.02-2 1.65-2.96 1.73-3.01-0.94-1.37-2.4-1.56-2.91-1.58-1.24-.13-2.42.73-3.05.73-.63 0-1.6-.71-2.63-.69-1.35.02-2.6.79-3.29 2-1.41 2.43-.36 6.03 1 8 .66.97 1.45 2.06 2.48 2.02 1-.04 1.37-.64 2.58-.64 1.21 0 1.55.64 2.6.62 1.08-.02 1.76-0.98 2.41-1.95.76-1.1 1.07-2.17 1.08-2.23-.02-.01-2.07-.79-2.1-3.27Z"/>
@@ -518,24 +549,48 @@ export default function Home() {
             Free and open source. Windows and Linux available now. Mac coming soon.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <MovingBorderButton
-              as="a"
-              href="/api/download?platform=windows"
-              containerClassName="h-[46px]"
-              innerClassName="gap-2 bg-white text-black text-sm font-semibold px-6 rounded-full hover:bg-neutral-100 transition-colors"
-            >
-              <svg width="15" height="15" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
-                <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
-              </svg>
-              Download for Windows
-            </MovingBorderButton>
-            <a
-              href="/api/download?platform=linux"
-              className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
-            >
-              <Image src="/linux.svg" alt="Linux" width={15} height={15} />
-              Download for Linux
-            </a>
+            {detectedOS === 'linux' ? (
+              <MovingBorderButton
+                as="a"
+                href="/api/download?platform=linux"
+                containerClassName="h-[46px]"
+                innerClassName="gap-2 bg-white text-black text-sm font-semibold px-6 rounded-full hover:bg-neutral-100 transition-colors"
+              >
+                <Image src="/linux.svg" alt="Linux" width={15} height={15} />
+                Download for Linux
+              </MovingBorderButton>
+            ) : (
+              <MovingBorderButton
+                as="a"
+                href="/api/download?platform=windows"
+                containerClassName="h-[46px]"
+                innerClassName="gap-2 bg-white text-black text-sm font-semibold px-6 rounded-full hover:bg-neutral-100 transition-colors"
+              >
+                <svg width="15" height="15" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
+                  <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
+                </svg>
+                Download for Windows
+              </MovingBorderButton>
+            )}
+            {detectedOS === 'linux' ? (
+              <a
+                href="/api/download?platform=windows"
+                className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
+              >
+                <svg width="15" height="15" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
+                  <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
+                </svg>
+                Download for Windows
+              </a>
+            ) : (
+              <a
+                href="/api/download?platform=linux"
+                className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
+              >
+                <Image src="/linux.svg" alt="Linux" width={15} height={15} />
+                Download for Linux
+              </a>
+            )}
             <span className="inline-flex items-center gap-2 text-sm text-[#555555] border border-[rgba(255,255,255,0.06)] px-6 py-3 rounded-full cursor-not-allowed">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                 <path d="M16.65 13.2c-.02-2 1.65-2.96 1.73-3.01-0.94-1.37-2.4-1.56-2.91-1.58-1.24-.13-2.42.73-3.05.73-.63 0-1.6-.71-2.63-.69-1.35.02-2.6.79-3.29 2-1.41 2.43-.36 6.03 1 8 .66.97 1.45 2.06 2.48 2.02 1-.04 1.37-.64 2.58-.64 1.21 0 1.55.64 2.6.62 1.08-.02 1.76-0.98 2.41-1.95.76-1.1 1.07-2.17 1.08-2.23-.02-.01-2.07-.79-2.1-3.27Z"/>
