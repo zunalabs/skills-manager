@@ -1,9 +1,11 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import path from 'path'
 import fs from 'fs'
 import os from 'os'
 import yaml from 'js-yaml'
 import https from 'https'
+import chokidar from 'chokidar'
 
 const home = os.homedir()
 
@@ -100,7 +102,9 @@ function parseSkillMeta(skillDir: string): SkillMeta {
   }
 }
 
-function readSkillDir(toolName: string, toolPath: string, skillDirName: string, disabled = false): Skill {
+const DISABLED_MARKER = '.disabled'
+
+function readSkillDir(toolName: string, toolPath: string, skillDirName: string): Skill {
   const skillPath = path.join(toolPath, skillDirName)
   const meta = parseSkillMeta(skillPath)
 
@@ -115,10 +119,10 @@ function readSkillDir(toolName: string, toolPath: string, skillDirName: string, 
     }
   }
 
-  const isDisabled = disabled
+  const enabled = !fs.existsSync(path.join(skillPath, DISABLED_MARKER))
 
   return {
-    id: `${toolName}::${disabled ? '.disabled/' : ''}${skillDirName}`,
+    id: `${toolName}::${skillDirName}`,
     name: meta.name || skillDirName,
     description: meta.description || '',
     domain: meta.domain || '',
@@ -133,7 +137,7 @@ function readSkillDir(toolName: string, toolPath: string, skillDirName: string, 
     toolPath,
     hasTemplates,
     templateCount,
-    enabled: !isDisabled,
+    enabled,
   }
 }
 
@@ -144,25 +148,18 @@ function scanAllTools(): ToolSummary[] {
       return { tool: toolName, path: toolPath, exists: false, skillCount: 0, skills: [] }
     }
 
-    const readDirs = (dirPath: string, disabled: boolean): Skill[] => {
-      let entries: string[] = []
-      try {
-        entries = fs.readdirSync(dirPath).filter((entry) => {
-          if (entry === '.disabled') return false
-          const full = path.join(dirPath, entry)
-          return fs.statSync(full).isDirectory()
-        })
-      } catch {
-        entries = []
-      }
-      return entries.map((dir) => readSkillDir(toolName, dirPath, dir, disabled))
+    let entries: string[] = []
+    try {
+      entries = fs.readdirSync(toolPath).filter((entry) => {
+        if (entry.startsWith('.')) return false
+        const full = path.join(toolPath, entry)
+        return fs.statSync(full).isDirectory()
+      })
+    } catch {
+      entries = []
     }
 
-    const activeSkills = readDirs(toolPath, false)
-    const disabledDir = path.join(toolPath, '.disabled')
-    const disabledSkills = fs.existsSync(disabledDir) ? readDirs(disabledDir, true) : []
-    const skills = [...activeSkills, ...disabledSkills]
-
+    const skills = entries.map((dir) => readSkillDir(toolName, toolPath, dir))
     return { tool: toolName, path: toolPath, exists: true, skillCount: skills.length, skills }
   })
 }
@@ -211,26 +208,18 @@ function deleteSkill(skillPath: string): boolean {
   }
 }
 
-function toggleSkill(skillPath: string, enabled: boolean): { ok: boolean; newPath: string } {
-  const skillName = path.basename(skillPath)
-  const currentDir = path.dirname(skillPath)
+function toggleSkill(skillPath: string, enabled: boolean): { ok: boolean; newPath: string; error?: string } {
+  const marker = path.join(skillPath, DISABLED_MARKER)
   try {
     if (enabled) {
-      // Move from .disabled/ back into the active tool directory
-      const toolPath = path.dirname(currentDir)
-      const newPath = path.join(toolPath, skillName)
-      fs.renameSync(skillPath, newPath)
-      return { ok: true, newPath }
+      if (fs.existsSync(marker)) fs.rmSync(marker)
     } else {
-      // Move into .disabled/ subfolder within the same tool directory
-      const disabledDir = path.join(currentDir, '.disabled')
-      if (!fs.existsSync(disabledDir)) fs.mkdirSync(disabledDir, { recursive: true })
-      const newPath = path.join(disabledDir, skillName)
-      fs.renameSync(skillPath, newPath)
-      return { ok: true, newPath }
+      fs.writeFileSync(marker, '')
     }
-  } catch {
-    return { ok: false, newPath: skillPath }
+    return { ok: true, newPath: skillPath }
+  } catch (e) {
+    console.error('toggleSkill error:', e)
+    return { ok: false, newPath: skillPath, error: String(e) }
   }
 }
 
@@ -323,6 +312,7 @@ function httpsGet(url: string, cb: (data: string) => void, errCb: (e: string) =>
 
 interface DiscoveredSkill {
   dirName: string
+  apiPath: string
   name: string
   description: string
 }
@@ -395,7 +385,7 @@ function discoverSkills(repo: string): Promise<DiscoverResult> {
         // e.g. ['SKILL.md'] → basePath='' (single-skill repo)
         const skillDirPaths = skillMdPaths.map((p) => p.split('/').slice(0, -1).join('/')) // dir containing SKILL.md
         const isSingleSkill = skillDirPaths.length === 1 && skillDirPaths[0] === ''
-        const skillsBasePath = isSingleSkill ? '' : (() => {
+        const skillsBasePath = isSingleSkill ? ':root:' : (() => {
           // Find common parent
           const parts0 = skillDirPaths[0].split('/')
           let common = parts0.slice(0, -1) // parent of the skill dir
@@ -415,14 +405,15 @@ function discoverSkills(repo: string): Promise<DiscoverResult> {
         skillMdPaths.forEach((skillMdPath) => {
           const dirPath = skillMdPath.split('/').slice(0, -1).join('/')
           const dirName = isSingleSkill ? repoName : (dirPath.split('/').pop() || repoName)
+          const apiPath = dirPath
           const rawUrl = `https://raw.githubusercontent.com/${owner}/${repoName}/HEAD/${skillMdPath}`
 
           httpsGet(rawUrl, (content) => {
             const meta = parseSkillMdFrontmatter(content)
-            skills.push({ dirName, name: meta.name || dirName, description: meta.description })
+            skills.push({ dirName, apiPath, name: meta.name || dirName, description: meta.description })
             if (--pending === 0) resolve({ ok: true, skillsBasePath, skills })
           }, () => {
-            skills.push({ dirName, name: dirName, description: '' })
+            skills.push({ dirName, apiPath, name: dirName, description: '' })
             if (--pending === 0) resolve({ ok: true, skillsBasePath, skills })
           })
         })
@@ -432,56 +423,105 @@ function discoverSkills(repo: string): Promise<DiscoverResult> {
   })
 }
 
-// Install selected skills from a GitHub repo into target agent's skills folder.
-function installFromGitHub(
-  repo: string,
-  targetAgent: string,
-  skillDirNames: string[],
-  skillsBasePath: string,
+// Recursively download a GitHub directory (contents API) into a local folder.
+// Returns true if all items were downloaded successfully.
+function downloadDir(
+  owner: string,
+  repoName: string,
+  apiPath: string,
+  localDestDir: string,
   onProgress: (msg: string) => void
-): Promise<{ ok: boolean; installed: string[]; error?: string }> {
+): Promise<boolean> {
   return new Promise((resolve) => {
-    const targetBase = TOOL_PATHS[targetAgent]
-    if (!targetBase) return resolve({ ok: false, installed: [], error: `Unknown agent: ${targetAgent}` })
-    const [owner, repoName] = repo.replace('https://github.com/', '').replace(/\/$/, '').split('/')
-    if (!owner || !repoName) return resolve({ ok: false, installed: [], error: 'Invalid repo format. Use owner/repo' })
-
-    fs.mkdirSync(targetBase, { recursive: true })
-    const installed: string[] = []
-    let pending = skillDirNames.length
-    if (pending === 0) return resolve({ ok: true, installed: [] })
-
-    skillDirNames.forEach((dirName) => {
-      const dirPath = skillsBasePath ? `${skillsBasePath}/${dirName}` : dirName
-      const destDir = path.join(targetBase, dirName)
-
-      if (fs.existsSync(destDir)) {
-        onProgress(`Skipping ${dirName} (already exists)`)
-        if (--pending === 0) resolve({ ok: true, installed })
-        return
+    const url = `https://api.github.com/repos/${owner}/${repoName}/contents/${apiPath}`
+    httpsGet(url, (raw) => {
+      let items: Array<{ name: string; type: string; download_url: string | null; path: string }> = []
+      try {
+        const parsed = JSON.parse(raw)
+        if (!Array.isArray(parsed)) {
+          const msg = (parsed as { message?: string })?.message || 'Unexpected response'
+          onProgress(`  Error: ${msg}${apiPath ? ` (path: ${apiPath})` : ' (root)'}`)
+          return resolve(false)
+        }
+        items = parsed
+      } catch {
+        onProgress('  Error: Failed to parse GitHub response')
+        return resolve(false)
       }
 
-      httpsGet(`https://api.github.com/repos/${owner}/${repoName}/contents/${dirPath}`, (raw) => {
-        let files: Array<{ name: string; type: string; download_url: string | null }> = []
-        try { files = JSON.parse(raw) } catch { files = [] }
+      try { fs.mkdirSync(localDestDir, { recursive: true }) } catch { /* ignore */ }
 
-        const fileList = files.filter((f) => f.type === 'file')
-        if (fileList.length === 0) { if (--pending === 0) resolve({ ok: true, installed }); return }
+      const files = items.filter((f) => f.type === 'file')
+      const dirs = items.filter((f) => f.type === 'dir')
+      let pending = files.length + dirs.length
+      if (pending === 0) return resolve(true)
 
-        fs.mkdirSync(destDir, { recursive: true })
-        onProgress(`Installing ${dirName}...`)
+      let allOk = true
+      const done = (ok = true) => {
+        if (!ok) allOk = false
+        if (--pending === 0) resolve(allOk)
+      }
 
-        let filePending = fileList.length
-        fileList.forEach((file) => {
-          if (!file.download_url) { if (--filePending === 0) { installed.push(dirName); if (--pending === 0) resolve({ ok: true, installed }) }; return }
-          httpsGet(file.download_url, (content) => {
-            try { fs.writeFileSync(path.join(destDir, file.name), content) } catch { /* ignore */ }
-            if (--filePending === 0) { installed.push(dirName); if (--pending === 0) resolve({ ok: true, installed }) }
-          }, () => { if (--filePending === 0) { if (--pending === 0) resolve({ ok: true, installed }) } })
-        })
-      }, () => { if (--pending === 0) resolve({ ok: true, installed }) })
+      for (const file of files) {
+        if (!file.download_url) { done(); continue }
+        httpsGet(file.download_url, (content) => {
+          try { fs.writeFileSync(path.join(localDestDir, file.name), content, 'utf-8') } catch { /* ignore */ }
+          done()
+        }, () => done())
+      }
+
+      for (const dir of dirs) {
+        downloadDir(owner, repoName, dir.path, path.join(localDestDir, dir.name), onProgress)
+          .then((ok) => done(ok))
+      }
+    }, (err) => {
+      onProgress(`  Network error: ${err}`)
+      resolve(false)
     })
   })
+}
+
+// Install selected skills from a GitHub repo into target agent's skills folder.
+async function installFromGitHub(
+  repo: string,
+  targetAgent: string,
+  skillsToInstall: { dirName: string; apiPath: string }[],
+  onProgress: (msg: string) => void
+): Promise<{ ok: boolean; installed: string[]; error?: string }> {
+  const targetBase = TOOL_PATHS[targetAgent]
+  if (!targetBase) return { ok: false, installed: [], error: `Unknown agent: ${targetAgent}` }
+
+  const repoParts = repo.replace('https://github.com/', '').replace(/\/$/, '').split('/')
+  const owner = repoParts[0]
+  const repoName = repoParts[1]
+  if (!owner || !repoName) return { ok: false, installed: [], error: 'Invalid repo format. Use owner/repo' }
+
+  try { fs.mkdirSync(targetBase, { recursive: true }) } catch { /* ignore */ }
+
+  const installed: string[] = []
+  let lastError: string | undefined
+
+  for (const skill of skillsToInstall) {
+    const { dirName, apiPath } = skill
+    const destDir = path.join(targetBase, dirName)
+
+    if (fs.existsSync(destDir)) {
+      onProgress(`Skipping ${dirName} (already exists)`)
+      continue
+    }
+
+    onProgress(`Installing ${dirName}...`)
+    const ok = await downloadDir(owner, repoName, apiPath, destDir, onProgress)
+    if (ok) {
+      installed.push(dirName)
+      onProgress(`✓ ${dirName} installed`)
+    } else {
+      lastError = `Failed to install ${dirName}`
+      try { fs.rmSync(destDir, { recursive: true, force: true }) } catch { /* ignore */ }
+    }
+  }
+
+  return { ok: !lastError, installed, error: lastError }
 }
 
 ipcMain.handle('skills:delete', (_e, skillPath: string) => deleteSkill(skillPath))
@@ -494,10 +534,58 @@ ipcMain.handle('skills:copyToAgent', (_e, skillPath: string, targetAgent: string
 
 ipcMain.handle('skills:discoverSkills', (_e, repo: string) => discoverSkills(repo))
 
-ipcMain.handle('skills:installFromGitHub', async (e, repo: string, targetAgent: string, skillDirNames: string[], skillsBasePath: string) => {
-  return installFromGitHub(repo, targetAgent, skillDirNames, skillsBasePath, (msg) => {
+ipcMain.handle('skills:installFromGitHub', async (e, repo: string, targetAgent: string, skillsToInstall: { dirName: string; apiPath: string }[]) => {
+  return installFromGitHub(repo, targetAgent, skillsToInstall, (msg) => {
     e.sender.send('skills:installProgress', msg)
   })
+})
+
+// ── Collections ──────────────────────────────────────────────────────────────
+interface Collection {
+  id: string
+  name: string
+  skillIds: string[]
+}
+
+function getCollectionsPath() {
+  return path.join(app.getPath('userData'), 'collections.json')
+}
+
+function readCollections(): Collection[] {
+  try { return JSON.parse(fs.readFileSync(getCollectionsPath(), 'utf-8')) } catch { return [] }
+}
+
+function writeCollections(cols: Collection[]) {
+  fs.writeFileSync(getCollectionsPath(), JSON.stringify(cols, null, 2))
+}
+
+ipcMain.handle('collections:list', () => readCollections())
+
+ipcMain.handle('collections:create', (_e, name: string) => {
+  const cols = readCollections()
+  const col: Collection = { id: Date.now().toString(), name, skillIds: [] }
+  writeCollections([...cols, col])
+  return col
+})
+
+ipcMain.handle('collections:delete', (_e, id: string) => {
+  writeCollections(readCollections().filter((c) => c.id !== id))
+})
+
+ipcMain.handle('collections:addSkill', (_e, collectionId: string, skillId: string) => {
+  const cols = readCollections()
+  writeCollections(cols.map((c) =>
+    c.id === collectionId && !c.skillIds.includes(skillId)
+      ? { ...c, skillIds: [...c.skillIds, skillId] }
+      : c
+  ))
+})
+
+ipcMain.handle('collections:removeSkill', (_e, collectionId: string, skillId: string) => {
+  const cols = readCollections()
+  writeCollections(cols.map((c) =>
+    c.id === collectionId ? { ...c, skillIds: c.skillIds.filter((id) => id !== skillId) } : c
+  ))
 })
 
 ipcMain.handle('skills:openInExplorer', (_e, skillPath: string) => {
@@ -550,7 +638,29 @@ ipcMain.handle('skills:searchMarketplace', (_e, query: string, page: number) => 
   return doGet(`https://mcpmarket.com/api/search?${params}`)
 })
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow()
+
+  // Watch skill directories and notify renderer on any change
+  const watchPaths = Object.values(TOOL_PATHS)
+  const watcher = chokidar.watch(watchPaths, {
+    ignoreInitial: true,
+    depth: 2,
+    awaitWriteFinish: { stabilityThreshold: 400, pollInterval: 100 },
+  })
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null
+  watcher.on('all', () => {
+    if (debounceTimer) clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(() => {
+      if (win) win.webContents.send('skills:changed')
+    }, 500)
+  })
+
+  // Check for updates silently after startup (production only)
+  if (!process.env.VITE_DEV_SERVER_URL) {
+    autoUpdater.checkForUpdatesAndNotify()
+  }
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()

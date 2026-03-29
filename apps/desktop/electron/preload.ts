@@ -13,8 +13,8 @@ contextBridge.exposeInMainWorld('skillsAPI', {
   copyToAgent: (skillPath: string, targetAgent: string) =>
     ipcRenderer.invoke('skills:copyToAgent', skillPath, targetAgent),
   discoverSkills: (repo: string) => ipcRenderer.invoke('skills:discoverSkills', repo),
-  installFromGitHub: (repo: string, targetAgent: string, skillDirNames: string[], skillsBasePath: string) =>
-    ipcRenderer.invoke('skills:installFromGitHub', repo, targetAgent, skillDirNames, skillsBasePath),
+  installFromGitHub: (repo: string, targetAgent: string, skillsToInstall: { dirName: string; apiPath: string }[]) =>
+    ipcRenderer.invoke('skills:installFromGitHub', repo, targetAgent, skillsToInstall),
   onInstallProgress: (cb: (msg: string) => void) => {
     ipcRenderer.on('skills:installProgress', (_e, msg) => cb(msg))
     return () => ipcRenderer.removeAllListeners('skills:installProgress')
@@ -24,4 +24,15 @@ contextBridge.exposeInMainWorld('skillsAPI', {
   searchMarketplace: (query: string, page: number) => ipcRenderer.invoke('skills:searchMarketplace', query, page),
   getGithubToken: () => ipcRenderer.invoke('skills:getGithubToken'),
   setGithubToken: (token: string) => ipcRenderer.invoke('skills:setGithubToken', token),
+  // Collections
+  listCollections: () => ipcRenderer.invoke('collections:list'),
+  createCollection: (name: string) => ipcRenderer.invoke('collections:create', name),
+  deleteCollection: (id: string) => ipcRenderer.invoke('collections:delete', id),
+  addToCollection: (collectionId: string, skillId: string) => ipcRenderer.invoke('collections:addSkill', collectionId, skillId),
+  removeFromCollection: (collectionId: string, skillId: string) => ipcRenderer.invoke('collections:removeSkill', collectionId, skillId),
+  // File watching
+  onSkillsChanged: (cb: () => void) => {
+    ipcRenderer.on('skills:changed', cb)
+    return () => ipcRenderer.removeListener('skills:changed', cb)
+  },
 })

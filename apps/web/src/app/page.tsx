@@ -565,13 +565,7 @@ export default function Home() {
                 Download for Linux
               </a>
             )}
-            <span className="inline-flex items-center gap-2 text-sm text-[#555555] border border-[rgba(255,255,255,0.06)] px-6 py-3 rounded-full cursor-not-allowed">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M16.65 13.2c-.02-2 1.65-2.96 1.73-3.01-0.94-1.37-2.4-1.56-2.91-1.58-1.24-.13-2.42.73-3.05.73-.63 0-1.6-.71-2.63-.69-1.35.02-2.6.79-3.29 2-1.41 2.43-.36 6.03 1 8 .66.97 1.45 2.06 2.48 2.02 1-.04 1.37-.64 2.58-.64 1.21 0 1.55.64 2.6.62 1.08-.02 1.76-0.98 2.41-1.95.76-1.1 1.07-2.17 1.08-2.23-.02-.01-2.07-.79-2.1-3.27Z"/>
-                <path d="M14.92 6.82c.54-.65.9-1.56.8-2.46-.77.03-1.7.51-2.25 1.16-.5.58-.94 1.52-.82 2.41.86.07 1.72-.44 2.27-1.11Z"/>
-              </svg>
-              Mac — coming soon
-            </span>
+
           </div>
         </ScrollReveal>
       </section>
