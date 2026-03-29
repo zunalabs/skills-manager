@@ -4,13 +4,13 @@ import { useEffect, useState } from 'react'
 import Faq from './Faq'
 import { AgentIcon } from './AgentIcon'
 import ScrollReveal from './ScrollReveal'
-import { Spotlight } from './Spotlight'
 import { CardSpotlight } from './CardSpotlight'
 import { TracingBeam } from './TracingBeam'
-import { ShootingStars } from './ShootingStars'
-import { MovingBorderButton } from './MovingBorder'
 import { LampContainer } from './LampContainer'
-import { HeroHighlight, Highlight } from './HeroHighlight'
+import { MovingBorderButton } from './MovingBorder'
+import { ShootingStars } from './ShootingStars'
+import { Spotlight } from './Spotlight'
+import { HeroHighlight } from './HeroHighlight'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import FeedbackForm from './FeedbackForm'
@@ -167,7 +167,7 @@ export default function Home() {
         className="sticky top-0 z-50 border-b border-[rgba(255,255,255,0.06)] backdrop-blur-md"
         style={{ background: 'rgba(10,9,8,0.85)' }}
       >
-        <div className="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
           <span className="font-heading text-base tracking-tight">Skills Manager</span>
           <nav className="flex items-center gap-5">
             <a
@@ -197,147 +197,121 @@ export default function Home() {
       </header>
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden border-b border-[rgba(255,255,255,0.06)]">
         <ShootingStars minDelay={800} maxDelay={3000} starWidth={12} />
         <Spotlight className="-top-40 left-0 md:-top-20 md:left-60" fill="white" />
+        <HeroHighlight className="pt-14 pb-24 md:pt-20 md:pb-32">
+        <div className="max-w-6xl mx-auto px-6">
 
-        <HeroHighlight className="pt-24 pb-6">
-          <div className="relative max-w-5xl mx-auto px-6 text-center">
-          <motion.div {...fadeUp(0)}>
-            <span className="inline-flex items-center gap-2 text-xs text-[#858585] border border-[rgba(255,255,255,0.1)] rounded-full px-3 py-1 mb-8">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-dot inline-block" />
-              Open source · Free forever{downloads != null && ` · ${downloads.toLocaleString()} downloads`}
-            </span>
-          </motion.div>
+          {/* Two-column: headline left, description right */}
+          <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-start mb-14">
 
-          <motion.h1
-            className="font-heading text-[2.5rem] sm:text-[3.25rem] md:text-[3.875rem] leading-[1.1] mb-5"
-            style={{ letterSpacing: '-0.01em' }}
-            {...fadeUp(0.1)}
-          >
-            One place for{' '}
-            <Highlight>all your AI skills.</Highlight>
-          </motion.h1>
+            {/* Left — headline + CTAs */}
+            <div>
+              <motion.h1
+                className="font-heading text-[2.5rem] sm:text-[3.25rem] md:text-[4rem] leading-[1.05] mb-10"
+                style={{ letterSpacing: '-0.025em' }}
+                {...fadeUp(0)}
+              >
+                One place for<br />all your AI skills.
+              </motion.h1>
 
-          <motion.p
-            className="text-sm leading-relaxed text-[#858585] max-w-sm mx-auto mb-10"
-            {...fadeUp(0.2)}
-          >
-            Install, manage, and share skills across every major coding agent —
-            Claude Code, Cursor, Copilot, and more.
-          </motion.p>
+              <motion.div id="download" className="flex flex-wrap gap-3" {...fadeUp(0.1)}>
+                {/* Primary — detected OS */}
+                {detectedOS === 'linux' ? (
+                  <a
+                    href="/api/download?platform=linux"
+                    className="inline-flex items-center gap-2 bg-white text-black text-sm font-semibold px-6 py-3 rounded-full hover:bg-neutral-100 transition-colors"
+                  >
+                    <Image src="/linux.svg" alt="Linux" width={14} height={14} />
+                    Download for Linux
+                  </a>
+                ) : (
+                  <a
+                    href="/api/download?platform=windows"
+                    className="inline-flex items-center gap-2 bg-white text-black text-sm font-semibold px-6 py-3 rounded-full hover:bg-neutral-100 transition-colors"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
+                      <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
+                    </svg>
+                    Download for Windows
+                  </a>
+                )}
 
+                {/* Secondary — other OS */}
+                {detectedOS === 'linux' ? (
+                  <a
+                    href="/api/download?platform=windows"
+                    className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.12)] hover:border-[rgba(255,255,255,0.3)] px-6 py-3 rounded-full transition-colors"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
+                      <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
+                    </svg>
+                    Download for Windows
+                  </a>
+                ) : (
+                  <a
+                    href="/api/download?platform=linux"
+                    className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.12)] hover:border-[rgba(255,255,255,0.3)] px-6 py-3 rounded-full transition-colors"
+                  >
+                    <Image src="/linux.svg" alt="Linux" width={14} height={14} />
+                    Download for Linux
+                  </a>
+                )}
+              </motion.div>
+            </div>
+
+            {/* Right — description only */}
+            <div className="md:pt-3">
+              <motion.p
+                className="text-[1rem] leading-relaxed text-[#858585]"
+                {...fadeUp(0.05)}
+              >
+                Install, manage, and share skills across every major coding agent — Claude Code, Cursor, Windsurf, GitHub Copilot, Gemini CLI, Goose, OpenAI Codex, OpenCode, Kilo Code, Trae, and Antigravity.
+              </motion.p>
+            </div>
+          </div>
+
+          {/* App screenshot */}
           <motion.div
-            id="download"
-            className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8"
-            {...fadeUp(0.3)}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
           >
-            {detectedOS === 'linux' ? (
-              <MovingBorderButton
-                as="a"
-                href="/api/download?platform=linux"
-                containerClassName="h-[46px]"
-                innerClassName="gap-2 bg-white text-black text-sm font-semibold px-6 rounded-full hover:bg-neutral-100 transition-colors"
-              >
-                <Image src="/linux.svg" alt="Linux" width={15} height={15} />
-                Download for Linux
-              </MovingBorderButton>
-            ) : (
-              <MovingBorderButton
-                as="a"
-                href="/api/download?platform=windows"
-                containerClassName="h-[46px]"
-                innerClassName="gap-2 bg-white text-black text-sm font-semibold px-6 rounded-full hover:bg-neutral-100 transition-colors"
-              >
-                <svg width="15" height="15" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
-                  <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
-                </svg>
-                Download for Windows
-              </MovingBorderButton>
-            )}
-            {detectedOS === 'linux' ? (
-              <a
-                href="/api/download?platform=windows"
-                className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
-              >
-                <svg width="15" height="15" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
-                  <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
-                </svg>
-                Download for Windows
-              </a>
-            ) : (
-              <a
-                href="/api/download?platform=linux"
-                className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
-              >
-                <Image src="/linux.svg" alt="Linux" width={15} height={15} />
-                Download for Linux
-              </a>
-            )}
-            <span className="inline-flex items-center gap-2 text-sm text-[#555555] border border-[rgba(255,255,255,0.06)] px-6 py-3 rounded-full cursor-not-allowed">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M16.65 13.2c-.02-2 1.65-2.96 1.73-3.01-0.94-1.37-2.4-1.56-2.91-1.58-1.24-.13-2.42.73-3.05.73-.63 0-1.6-.71-2.63-.69-1.35.02-2.6.79-3.29 2-1.41 2.43-.36 6.03 1 8 .66.97 1.45 2.06 2.48 2.02 1-.04 1.37-.64 2.58-.64 1.21 0 1.55.64 2.6.62 1.08-.02 1.76-0.98 2.41-1.95.76-1.1 1.07-2.17 1.08-2.23-.02-.01-2.07-.79-2.1-3.27Z"/>
-                <path d="M14.92 6.82c.54-.65.9-1.56.8-2.46-.77.03-1.7.51-2.25 1.16-.5.58-.94 1.52-.82 2.41.86.07 1.72-.44 2.27-1.11Z"/>
-              </svg>
-              Mac — coming soon
-            </span>
+            <img
+              src="/sm.PNG"
+              alt="Skills Manager app screenshot"
+              className="rounded-2xl border border-[rgba(255,255,255,0.08)] w-full"
+            />
           </motion.div>
 
-          <motion.p className="text-[11px] text-[#555555] mb-8" {...fadeUp(0.35)}>
-            Windows may show a SmartScreen warning — click &ldquo;More info&rdquo; → &ldquo;Run anyway&rdquo;.{' '}
-            <a
-              href="https://github.com/zunalabs/skills-manager"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-[#858585] transition-colors"
-            >
-              Source code is public.
-            </a>
-          </motion.p>
-
-          <motion.div className="flex justify-center mt-4 mb-4" {...fadeUp(0.38)}>
+          <motion.div className="flex flex-wrap items-center justify-between gap-4 mt-5" {...fadeUp(0.3)}>
+            <div className="flex flex-wrap items-center gap-4 text-xs text-[#444]">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse-dot" />
+                Open source · MIT · No accounts
+              </span>
+              {downloads != null && <span>{downloads.toLocaleString()} downloads</span>}
+              <span>
+                Windows SmartScreen? &ldquo;More info&rdquo; → &ldquo;Run anyway&rdquo;.{' '}
+                <a href="https://github.com/zunalabs/skills-manager" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#858585] transition-colors">Source is public.</a>
+              </span>
+            </div>
             <a
               href="https://www.producthunt.com/products/ai-skills-manager?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-ai-skills-manager"
               target="_blank"
               rel="noopener noreferrer"
             >
               <img
-                alt="AI Skills Manager - One place for all your AI skills | Product Hunt"
-                width={250}
-                height={54}
+                alt="AI Skills Manager on Product Hunt"
+                width={200}
+                height={43}
                 src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1102479&theme=dark&t=1773999174865"
               />
             </a>
           </motion.div>
 
-       
-
-          {/* App screenshot — floats gently */}
-          <motion.div
-            className="relative"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
-          >
-            <div
-              className="pointer-events-none absolute -inset-x-8 -top-8 bottom-0"
-              style={{
-                background:
-                  'radial-gradient(ellipse 70% 60% at 50% 80%, rgba(255,255,255,0.04) 0%, transparent 70%)',
-              }}
-            />
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, ease: 'easeInOut', repeat: Infinity }}
-            >
-              <img
-                src="/sm.PNG"
-                alt="Skills Manager app screenshot"
-                className="rounded-xl border border-[rgba(255,255,255,0.08)] shadow-2xl w-full max-w-3xl mx-auto"
-              />
-            </motion.div>
-          </motion.div>
-          </div>
+        </div>
         </HeroHighlight>
       </section>
 
@@ -426,7 +400,7 @@ export default function Home() {
             </p>
           </LampContainer>
 
-          <div className="max-w-5xl mx-auto px-6 pt-8 pb-20">
+          <div className="max-w-6xl mx-auto px-6 pt-8 pb-20">
             <div
               className="grid grid-cols-1 sm:grid-cols-2 gap-px rounded-2xl overflow-hidden"
               style={{ background: 'rgba(255,255,255,0.06)' }}
@@ -454,7 +428,7 @@ export default function Home() {
 
         {/* Testimonials */}
         <section className="border-t border-[rgba(255,255,255,0.06)] py-20">
-          <div className="max-w-5xl mx-auto px-6">
+          <div className="max-w-6xl mx-auto px-6">
             <ScrollReveal>
               <p className="text-center text-xs uppercase tracking-widest text-[#858585] mb-12">
                 What people are saying
@@ -538,7 +512,7 @@ export default function Home() {
               'radial-gradient(ellipse 60% 80% at 50% 100%, rgba(255,255,255,0.04) 0%, transparent 70%)',
           }}
         />
-        <ScrollReveal className="relative max-w-5xl mx-auto px-6 text-center">
+        <ScrollReveal className="relative max-w-6xl mx-auto px-6 text-center">
           <h2
             className="font-heading text-[1.75rem] sm:text-[2.25rem] mb-4"
             style={{ letterSpacing: '-0.01em' }}
@@ -638,7 +612,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-[rgba(255,255,255,0.06)] py-8">
-        <div className="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
             <span className="font-heading text-base text-white">Skills Manager</span>
             <span className="text-sm text-[#858585] ml-2">by{' '}
