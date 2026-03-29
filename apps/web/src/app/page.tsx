@@ -215,6 +215,12 @@ export default function Home() {
               >
                 One place for<br />all your AI skills.
               </motion.h1>
+              <motion.p
+                className="text-[1rem] leading-relaxed text-[#858585] mb-10 md:hidden"
+                {...fadeUp(0.05)}
+              >
+                Install, manage, and share skills across every major coding agent — Claude Code, Cursor, Windsurf, GitHub Copilot, Gemini CLI, Goose, OpenAI Codex, OpenCode, Kilo Code, Trae, and Antigravity.
+              </motion.p>
 
               <motion.div id="download" className="flex flex-wrap gap-3" {...fadeUp(0.1)}>
                 {/* Primary — detected OS */}
@@ -262,7 +268,7 @@ export default function Home() {
             </div>
 
             {/* Right — description only */}
-            <div className="md:pt-3">
+            <div className="hidden md:block md:pt-3">
               <motion.p
                 className="text-[1rem] leading-relaxed text-[#858585]"
                 {...fadeUp(0.05)}
