@@ -17,8 +17,6 @@ interface HeaderProps {
   totalEnabled: number
   filterTool: string
   onFilterTool: (t: string) => void
-  filterStatus: 'all' | 'enabled' | 'disabled'
-  onFilterStatus: (s: 'all' | 'enabled' | 'disabled') => void
   tools: ToolSummary[]
   view: 'skills' | 'discover'
   onViewChange: (v: 'skills' | 'discover') => void
@@ -29,7 +27,6 @@ export default function Header({
   search, onSearch, onRefresh, onInstall,
   totalSkills, totalEnabled,
   filterTool, onFilterTool,
-  filterStatus, onFilterStatus,
   tools,
   view, onViewChange,
   onSettings,
@@ -77,12 +74,7 @@ export default function Header({
             ))}
           </Select>
 
-          {/* Status filter */}
-          <Tabs value={filterStatus} onValueChange={(s) => onFilterStatus(s as 'all' | 'enabled' | 'disabled')}>
-            <Tab value="all">All</Tab>
-            <Tab value="enabled">Enabled</Tab>
-            <Tab value="disabled">Disabled</Tab>
-          </Tabs>
+          {/* Status filter — hidden until disable feature is ready */}
         </>
       )}
 

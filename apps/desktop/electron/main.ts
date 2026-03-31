@@ -102,9 +102,11 @@ function parseSkillMeta(skillDir: string): SkillMeta {
   }
 }
 
-const DISABLED_MARKER = '.disabled'
+function getDisabledPath(toolPath: string): string {
+  return toolPath + '_disabled'
+}
 
-function readSkillDir(toolName: string, toolPath: string, skillDirName: string): Skill {
+function readSkillDir(toolName: string, toolPath: string, skillDirName: string, isEnabled: boolean): Skill {
   const skillPath = path.join(toolPath, skillDirName)
   const meta = parseSkillMeta(skillPath)
 
@@ -119,11 +121,11 @@ function readSkillDir(toolName: string, toolPath: string, skillDirName: string):
     }
   }
 
-  const enabled = !fs.existsSync(path.join(skillPath, DISABLED_MARKER))
+  const displayName = skillDirName.startsWith('.') ? skillDirName.slice(1) : skillDirName
 
   return {
     id: `${toolName}::${skillDirName}`,
-    name: meta.name || skillDirName,
+    name: meta.name || displayName,
     description: meta.description || '',
     domain: meta.domain || '',
     version: meta.version || '',
@@ -137,30 +139,65 @@ function readSkillDir(toolName: string, toolPath: string, skillDirName: string):
     toolPath,
     hasTemplates,
     templateCount,
-    enabled,
+    enabled: isEnabled,
+  }
+}
+
+function scanDir(toolName: string, toolPath: string, isEnabled: boolean): Skill[] {
+  if (!fs.existsSync(toolPath)) return []
+  try {
+    const entries = fs.readdirSync(toolPath).filter((entry) => {
+      const full = path.join(toolPath, entry)
+      try {
+        const stats = fs.statSync(full)
+        return stats.isDirectory()
+      } catch {
+        return false
+      }
+    })
+    return entries.map((dir) => readSkillDir(toolName, toolPath, dir, isEnabled))
+  } catch {
+    return []
   }
 }
 
 function scanAllTools(): ToolSummary[] {
   return Object.entries(TOOL_PATHS).map(([toolName, toolPath]) => {
     const exists = fs.existsSync(toolPath)
-    if (!exists) {
-      return { tool: toolName, path: toolPath, exists: false, skillCount: 0, skills: [] }
+    const disabledPath = getDisabledPath(toolPath)
+
+    // Migration: Move old dot-prefixed skill folders to the _disabled directory
+    if (exists) {
+      try {
+        const items = fs.readdirSync(toolPath)
+        for (const item of items) {
+          if (item.startsWith('.') && item !== '.' && item !== '..') {
+            const oldPath = path.join(toolPath, item)
+            const cleanName = item.slice(1)
+            const newPath = path.join(disabledPath, cleanName)
+            if (!fs.existsSync(disabledPath)) fs.mkdirSync(disabledPath, { recursive: true })
+            if (!fs.existsSync(newPath)) {
+              console.log(`Migrating legacy disabled skill: ${item} -> ${newPath}`)
+              fs.renameSync(oldPath, newPath)
+            }
+          }
+        }
+      } catch (err) {
+        console.error(`Migration error for ${toolName}:`, err)
+      }
     }
 
-    let entries: string[] = []
-    try {
-      entries = fs.readdirSync(toolPath).filter((entry) => {
-        if (entry.startsWith('.')) return false
-        const full = path.join(toolPath, entry)
-        return fs.statSync(full).isDirectory()
-      })
-    } catch {
-      entries = []
-    }
+    const activeSkills = scanDir(toolName, toolPath, true)
+    const disabledSkills = scanDir(toolName, disabledPath, false)
+    const allSkills = [...activeSkills, ...disabledSkills]
 
-    const skills = entries.map((dir) => readSkillDir(toolName, toolPath, dir))
-    return { tool: toolName, path: toolPath, exists: true, skillCount: skills.length, skills }
+    return { 
+      tool: toolName, 
+      path: toolPath, 
+      exists, 
+      skillCount: allSkills.length, 
+      skills: allSkills 
+    }
   })
 }
 
@@ -199,24 +236,91 @@ function readTemplate(skillPath: string, templateName: string): string {
   }
 }
 
-function deleteSkill(skillPath: string): boolean {
-  try {
-    fs.rmSync(skillPath, { recursive: true, force: true })
-    return true
-  } catch {
-    return false
+async function deleteSkill(skillPath: string, retries = 5, delay = 200): Promise<boolean> {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      fs.rmSync(skillPath, { recursive: true, force: true })
+      return true
+    } catch (err: any) {
+      const isLockError = err.code === 'EPERM' || err.code === 'EBUSY' || err.code === 'EACCES'
+      if (isLockError && i < retries && process.platform === 'win32') {
+        await new Promise((resolve) => setTimeout(resolve, delay * Math.pow(2, i)))
+        continue
+      }
+      return false
+    }
+  }
+  return false
+}
+
+async function renameWithRetry(oldPath: string, newPath: string, retries = 10, delay = 150): Promise<void> {
+  const isWindows = process.platform === 'win32'
+  for (let i = 0; i <= retries; i++) {
+    try {
+      fs.renameSync(oldPath, newPath)
+      return
+    } catch (err: any) {
+      const isLockError = err.code === 'EPERM' || err.code === 'EBUSY' || err.code === 'EACCES'
+      if (isLockError && i < retries && isWindows) {
+        // Wait and retry
+        await new Promise((resolve) => setTimeout(resolve, delay * Math.pow(2, i)))
+        continue
+      }
+      throw err
+    }
   }
 }
 
-function toggleSkill(skillPath: string, enabled: boolean): { ok: boolean; newPath: string; error?: string } {
-  const marker = path.join(skillPath, DISABLED_MARKER)
+async function toggleSkill(skillPath: string, enabled: boolean): Promise<{ ok: boolean; newPath: string; error?: string }> {
   try {
-    if (enabled) {
-      if (fs.existsSync(marker)) fs.rmSync(marker)
-    } else {
-      fs.writeFileSync(marker, '')
+    const parentDir = path.dirname(skillPath)
+    const baseName = path.basename(skillPath)
+    
+    let activePath = ''
+    let disabledPath = ''
+    let toolName = 'the agent'
+    
+    for (const [name, p] of Object.entries(TOOL_PATHS)) {
+      const d = getDisabledPath(p)
+      if (parentDir === p || parentDir === d) {
+        activePath = p
+        disabledPath = d
+        toolName = name
+        break
+      }
     }
-    return { ok: true, newPath: skillPath }
+    
+    if (!activePath) {
+      return { ok: false, newPath: skillPath, error: 'Could not identify agent directory' }
+    }
+    
+    const targetDir = enabled ? activePath : disabledPath
+    const newPath = path.join(targetDir, baseName)
+    
+    if (newPath === skillPath) return { ok: true, newPath }
+    
+    if (fs.existsSync(newPath)) {
+      return { ok: false, newPath: skillPath, error: `Destination already exists at ${newPath}` }
+    }
+
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true })
+    }
+
+    try {
+      await renameWithRetry(skillPath, newPath)
+    } catch (e: any) {
+      if (e.code === 'EPERM' || e.code === 'EBUSY') {
+        return { 
+          ok: false, 
+          newPath: skillPath, 
+          error: `Operation not permitted (locked). Please close any active sessions of ${toolName} (e.g., Claude Code, Goose) and try again.`
+        }
+      }
+      throw e
+    }
+    
+    return { ok: true, newPath }
   } catch (e) {
     console.error('toggleSkill error:', e)
     return { ok: false, newPath: skillPath, error: String(e) }

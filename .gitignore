@@ -8,3 +8,4 @@ out
 *.local
 .env
 .DS_Store
+apps/video/

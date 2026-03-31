@@ -1,39 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#1a1917"/>
-      <stop offset="100%" stop-color="#0a0908"/>
+      <stop offset="0%" stop-color="#6d28d9"/>
+      <stop offset="100%" stop-color="#3730a3"/>
     </linearGradient>
     <linearGradient id="glyph" x1="0" y1="0" x2="0.5" y2="1">
       <stop offset="0%" stop-color="#ffffff"/>
-      <stop offset="100%" stop-color="#aaaaaa"/>
+      <stop offset="100%" stop-color="#c4b5fd"/>
     </linearGradient>
   </defs>
-
-  <!-- Background -->
   <rect width="1024" height="1024" rx="224" ry="224" fill="url(#bg)"/>
-
-  <!-- Subtle inner glow -->
-  <rect width="1024" height="1024" rx="224" ry="224"
-        fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="2"/>
-
-  <!--
-    Glyph: three stacked horizontal "skill" bars with a small spark
-    on the right — representing a list of skills + activation.
-  -->
-
-  <!-- Bar 1 (top) -->
-  <rect x="248" y="310" width="340" height="60" rx="30" fill="url(#glyph)"/>
-
-  <!-- Bar 2 (middle) — slightly shorter -->
-  <rect x="248" y="422" width="260" height="60" rx="30" fill="url(#glyph)" opacity="0.75"/>
-
-  <!-- Bar 3 (bottom) -->
-  <rect x="248" y="534" width="300" height="60" rx="30" fill="url(#glyph)" opacity="0.55"/>
-
-  <!-- Spark / bolt on the right -->
-  <path
-    d="M 680 290 L 610 490 L 670 490 L 600 730 L 760 460 L 690 460 L 756 290 Z"
-    fill="url(#glyph)"
-  />
+  <rect width="1024" height="1024" rx="224" ry="224" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="3"/>
+  <!-- Three bars representing skills -->
+  <rect x="220" y="300" width="380" height="64" rx="32" fill="url(#glyph)"/>
+  <rect x="220" y="420" width="280" height="64" rx="32" fill="url(#glyph)" opacity="0.7"/>
+  <rect x="220" y="540" width="320" height="64" rx="32" fill="url(#glyph)" opacity="0.5"/>
+  <!-- Lightning bolt (skill activation) -->
+  <path d="M 670 270 L 590 490 L 660 490 L 580 750 L 780 450 L 700 450 L 780 270 Z" fill="url(#glyph)"/>
 </svg>

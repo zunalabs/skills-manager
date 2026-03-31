@@ -2,14 +2,21 @@ import { useState, useEffect } from 'react'
 import { Skill } from '../types'
 import { FolderOpen, Code, FileText, ChevronRight, Trash2, Copy } from 'lucide-react'
 import { ToolIcon } from './ToolIcon'
+import StarIcon from '@mui/icons-material/Star'
+import StarOutlinedIcon from '@mui/icons-material/StarOutlined'
+import { toast } from 'sonner'
 
 interface SkillDetailProps {
   skill: Skill
   onToggle: (s: Skill) => void
   onDelete: (s: Skill) => void
+  isFavourite: boolean
+  onToggleFavourite: () => void
+  requireConfirmDelete?: boolean
+  showVersionBadge?: boolean
 }
 
-export default function SkillDetail({ skill, onToggle, onDelete }: SkillDetailProps) {
+export default function SkillDetail({ skill, onToggle, onDelete, isFavourite, onToggleFavourite, requireConfirmDelete = true, showVersionBadge = true }: SkillDetailProps) {
   const [readme, setReadme] = useState('')
   const [templates, setTemplates] = useState<string[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
@@ -37,65 +44,57 @@ export default function SkillDetail({ skill, onToggle, onDelete }: SkillDetailPr
     window.skillsAPI.getReadme(skill.path).then((r) => {
       setReadme(r)
       setLoadingReadme(false)
+    }).catch(() => {
+      toast.error('Failed to load README')
+      setLoadingReadme(false)
     })
 
     window.skillsAPI.listTemplates(skill.path).then((t) => {
       setTemplates(t)
+    }).catch(() => {
+      toast.error('Failed to list templates')
     })
   }, [skill.id, skill.path])
 
   useEffect(() => {
-    if (!selectedTemplate) {
-      setTemplateContent('')
-      return
-    }
-    window.skillsAPI.readTemplate(skill.path, selectedTemplate).then(setTemplateContent)
+    if (!selectedTemplate) { setTemplateContent(''); return }
+    window.skillsAPI.readTemplate(skill.path, selectedTemplate).then(setTemplateContent).catch(() => {
+      toast.error(`Failed to read template: ${selectedTemplate}`)
+    })
   }, [selectedTemplate, skill.path])
 
-  const readmeBody = readme
-    ? readme.replace(/^---[\s\S]*?---\n?/, '').trim()
-    : ''
+  const readmeBody = readme ? readme.replace(/^---[\s\S]*?---\n?/, '').trim() : ''
 
   return (
-    <div className="flex flex-col h-full bg-[#0c0c0e]">
-      {/* Skill header */}
-      <div className="flex-shrink-0 border-b border-zinc-800/60 px-6 py-5">
-        <div className="flex items-start gap-4">
-          {/* Tool icon */}
-          <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700/50 flex items-center justify-center flex-shrink-0 mt-0.5">
-            <ToolIcon tool={skill.tool} size={26} />
+    <div className="flex flex-col h-full bg-zinc-950">
+      {/* Header */}
+      <div className="flex-shrink-0 border-b border-zinc-800 px-5 py-4">
+        <div className="flex items-start gap-3">
+          {/* Icon */}
+          <div className="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <ToolIcon tool={skill.tool} size={22} />
           </div>
 
           <div className="flex-1 min-w-0">
-            {/* Name + status badges */}
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <h1 className="font-heading text-base text-zinc-100 leading-tight">{skill.name}</h1>
-              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md border ${
-                skill.enabled
-                  ? 'bg-green-500/10 text-green-400 border-green-500/20'
-                  : 'bg-zinc-800 text-zinc-500 border-zinc-700'
-              }`}>
-                {skill.enabled ? 'enabled' : 'disabled'}
-              </span>
-              {skill.version && (
-                <span className="text-[10px] text-zinc-600 bg-zinc-800/80 px-1.5 py-0.5 rounded-md border border-zinc-700/50">
+            <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+              <h1 className="font-heading text-sm text-zinc-100 leading-tight">{skill.name}</h1>
+              {showVersionBadge && skill.version && (
+                <span className="text-[10px] text-zinc-600 bg-zinc-900 px-1.5 py-0.5 rounded border border-zinc-800">
                   v{skill.version}
                 </span>
               )}
             </div>
 
-            {/* Description */}
-            <p className="text-xs text-zinc-500 leading-snug mb-2">{skill.description || 'No description'}</p>
+            <p className="text-xs text-zinc-500 leading-snug mb-1.5">{skill.description || 'No description'}</p>
 
-            {/* Breadcrumb */}
             <div className="flex items-center gap-1 text-[11px] text-zinc-600">
-              <span className="flex items-center gap-1">
-                <span className="opacity-70"><ToolIcon tool={skill.tool} size={11} /></span>
+              <span className="flex items-center gap-1 opacity-70">
+                <ToolIcon tool={skill.tool} size={10} />
                 <span>{skill.tool}</span>
               </span>
               {skill.domain && (
                 <>
-                  <ChevronRight className="w-3 h-3 opacity-40" />
+                  <ChevronRight className="w-2.5 h-2.5 opacity-40" />
                   <span>{skill.domain}</span>
                 </>
               )}
@@ -103,21 +102,25 @@ export default function SkillDetail({ skill, onToggle, onDelete }: SkillDetailPr
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-1.5 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button
-              onClick={() => onToggle(skill)}
-              className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all border ${
-                skill.enabled
-                  ? 'bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/15 hover:border-green-500/30'
-                  : 'bg-zinc-800 text-zinc-400 border-zinc-700 hover:bg-zinc-700 hover:text-zinc-200'
+              onClick={onToggleFavourite}
+              className={`w-7 h-7 rounded border transition-colors flex items-center justify-center ${
+                isFavourite
+                  ? 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/15'
+                  : 'border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-500 hover:text-amber-400'
               }`}
+              title={isFavourite ? 'Remove from starred' : 'Add to starred'}
             >
-              {skill.enabled ? 'Enabled' : 'Disabled'}
+              {isFavourite
+                ? <StarIcon sx={{ fontSize: 15 }} />
+                : <StarOutlinedIcon sx={{ fontSize: 15 }} />
+              }
             </button>
 
             <button
               onClick={() => window.skillsAPI.openInExplorer(skill.path)}
-              className="w-7 h-7 rounded-lg hover:bg-zinc-800 border border-transparent hover:border-zinc-700 text-zinc-600 hover:text-zinc-300 transition-all flex items-center justify-center"
+              className="w-7 h-7 rounded border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300 transition-colors flex items-center justify-center"
               title="Open in Explorer"
             >
               <FolderOpen className="w-3.5 h-3.5" />
@@ -132,10 +135,10 @@ export default function SkillDetail({ skill, onToggle, onDelete }: SkillDetailPr
                 setShowCopyPanel((v) => !v)
                 setConfirmDelete(false)
               }}
-              className={`w-7 h-7 rounded-lg border transition-all flex items-center justify-center ${
+              className={`w-7 h-7 rounded border transition-colors flex items-center justify-center ${
                 showCopyPanel
-                  ? 'bg-violet-500/10 border-violet-500/20 text-violet-400'
-                  : 'hover:bg-zinc-800 border-transparent hover:border-zinc-700 text-zinc-600 hover:text-zinc-300'
+                  ? 'bg-violet-600/10 border-violet-600/30 text-violet-400'
+                  : 'border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300'
               }`}
               title="Copy to another agent"
             >
@@ -147,23 +150,40 @@ export default function SkillDetail({ skill, onToggle, onDelete }: SkillDetailPr
                 <button
                   onClick={async () => {
                     const ok = await window.skillsAPI.delete(skill.path)
-                    if (ok) onDelete(skill)
+                    if (ok) {
+                      onDelete(skill)
+                      toast.success(`Deleted ${skill.name}`)
+                    } else {
+                      toast.error('Failed to delete skill')
+                    }
                   }}
-                  className="text-xs px-2.5 py-1.5 rounded-lg font-medium bg-red-500/15 text-red-400 border border-red-500/30 hover:bg-red-500/25 transition-all"
+                  className="text-xs px-2.5 py-1.5 rounded font-medium bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors"
                 >
                   Confirm
                 </button>
                 <button
                   onClick={() => setConfirmDelete(false)}
-                  className="text-xs px-2.5 py-1.5 rounded-lg font-medium bg-zinc-800 text-zinc-400 border border-zinc-700 hover:bg-zinc-700 transition-all"
+                  className="text-xs px-2.5 py-1.5 rounded font-medium bg-zinc-900 text-zinc-400 border border-zinc-700 hover:bg-zinc-800 transition-colors"
                 >
                   Cancel
                 </button>
               </div>
             ) : (
               <button
-                onClick={() => setConfirmDelete(true)}
-                className="w-7 h-7 rounded-lg hover:bg-red-500/10 border border-transparent hover:border-red-500/20 text-zinc-600 hover:text-red-400 transition-all flex items-center justify-center"
+                onClick={async () => {
+                  if (!requireConfirmDelete) {
+                    const ok = await window.skillsAPI.delete(skill.path)
+                    if (ok) {
+                      onDelete(skill)
+                      toast.success(`Deleted ${skill.name}`)
+                    } else {
+                      toast.error('Failed to delete skill')
+                    }
+                  } else {
+                    setConfirmDelete(true)
+                  }
+                }}
+                className="w-7 h-7 rounded border border-zinc-800 bg-zinc-900 hover:bg-red-500/10 hover:border-red-500/20 text-zinc-600 hover:text-red-400 transition-colors flex items-center justify-center"
                 title="Delete skill"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -176,10 +196,7 @@ export default function SkillDetail({ skill, onToggle, onDelete }: SkillDetailPr
         {skill.tags.length > 0 && (
           <div className="flex items-center gap-1.5 mt-3 flex-wrap">
             {skill.tags.map((tag) => (
-              <span
-                key={tag}
-                className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-violet-500/10 text-violet-400 border border-violet-500/15"
-              >
+              <span key={tag} className="text-[10px] font-medium px-2 py-0.5 rounded bg-violet-600/10 text-violet-400 border border-violet-600/20">
                 {tag}
               </span>
             ))}
@@ -188,28 +205,23 @@ export default function SkillDetail({ skill, onToggle, onDelete }: SkillDetailPr
 
         {/* Keywords */}
         {skill.keywords.length > 0 && (
-          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+          <div className="flex items-center gap-1 mt-2 flex-wrap">
             {skill.keywords.slice(0, 8).map((kw) => (
-              <span
-                key={kw}
-                className="text-[11px] px-2 py-0.5 rounded-md bg-zinc-800/80 text-zinc-500 border border-zinc-700/50"
-              >
+              <span key={kw} className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-900 text-zinc-500 border border-zinc-800">
                 {kw}
               </span>
             ))}
             {skill.keywords.length > 8 && (
-              <span className="text-[11px] text-zinc-600">+{skill.keywords.length - 8} more</span>
+              <span className="text-[10px] text-zinc-600">+{skill.keywords.length - 8} more</span>
             )}
           </div>
         )}
 
-        {/* Copy to agent panel */}
+        {/* Copy panel */}
         {showCopyPanel && (
           <div className="mt-3 pt-3 border-t border-zinc-800">
             <p className="text-[11px] text-zinc-500 mb-2">Copy to agent:</p>
-            {copyError && (
-              <p className="text-[11px] text-red-400 mb-2">{copyError}</p>
-            )}
+            {copyError && <p className="text-[11px] text-red-400 mb-2">{copyError}</p>}
             <div className="flex flex-wrap gap-1.5">
               {Object.keys(agentPaths)
                 .filter((a) => a !== skill.tool)
@@ -225,22 +237,24 @@ export default function SkillDetail({ skill, onToggle, onDelete }: SkillDetailPr
                         const res = await window.skillsAPI.copyToAgent(skill.path, agent)
                         if (res.ok) {
                           setCopyStatus((prev) => ({ ...prev, [agent]: 'ok' }))
+                          toast.success(`Copied to ${agent}`)
                         } else {
                           setCopyStatus((prev) => ({ ...prev, [agent]: 'error' }))
                           setCopyError(res.error ?? 'Copy failed')
+                          toast.error(`Failed to copy: ${res.error || 'Unknown error'}`)
                         }
                       }}
-                      className={`flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded-lg border transition-all ${
+                      className={`flex items-center gap-1.5 text-[11px] px-2.5 py-1 rounded border transition-colors ${
                         st === 'ok'
-                          ? 'bg-green-500/10 text-green-400 border-green-500/20 cursor-default'
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 cursor-default'
                           : st === 'error'
                           ? 'bg-red-500/10 text-red-400 border-red-500/20 cursor-default'
-                          : 'bg-zinc-800/60 text-zinc-400 border-zinc-700/50 hover:bg-zinc-800 hover:text-zinc-200'
+                          : 'bg-zinc-900 text-zinc-400 border-zinc-700 hover:bg-zinc-800 hover:text-zinc-200'
                       }`}
                     >
                       <ToolIcon tool={agent} size={11} />
                       {agent}
-                      {st === 'ok' && <span className="text-green-400">✓</span>}
+                      {st === 'ok' && <span className="text-emerald-400">✓</span>}
                       {st === 'error' && <span className="text-red-400">✗</span>}
                     </button>
                   )
@@ -251,43 +265,28 @@ export default function SkillDetail({ skill, onToggle, onDelete }: SkillDetailPr
       </div>
 
       {/* Tabs */}
-      <div className="flex-shrink-0 flex items-center border-b border-zinc-800/60 bg-[#0c0c0e] px-6 gap-1">
-        <TabButton
-          active={activeTab === 'readme'}
-          onClick={() => setActiveTab('readme')}
-          icon={<FileText className="w-3.5 h-3.5" />}
-          label="README"
-        />
+      <div className="flex-shrink-0 flex items-center border-b border-zinc-800 px-5 gap-0">
+        <TabButton active={activeTab === 'readme'} onClick={() => setActiveTab('readme')} icon={<FileText className="w-3 h-3" />} label="README" />
         {templates.length > 0 && (
-          <TabButton
-            active={activeTab === 'templates'}
-            onClick={() => setActiveTab('templates')}
-            icon={<Code className="w-3.5 h-3.5" />}
-            label="Templates"
-            count={templates.length}
-          />
+          <TabButton active={activeTab === 'templates'} onClick={() => setActiveTab('templates')} icon={<Code className="w-3 h-3" />} label="Templates" count={templates.length} />
         )}
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-hidden">
         {activeTab === 'readme' && (
-          <div className="h-full overflow-y-auto px-6 py-5">
+          <div className="h-full overflow-y-auto px-5 py-4">
             {loadingReadme ? (
               <div className="space-y-2.5">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="h-3.5 bg-zinc-900 rounded animate-pulse"
-                    style={{ width: `${55 + i * 9}%` }}
-                  />
+                  <div key={i} className="h-3 bg-zinc-900 rounded animate-pulse" style={{ width: `${50 + i * 10}%` }} />
                 ))}
               </div>
             ) : readmeBody ? (
               <MarkdownView content={readmeBody} />
             ) : (
-              <div className="flex items-center justify-center h-full text-zinc-600">
-                <p className="text-xs">No README found</p>
+              <div className="flex items-center justify-center h-full">
+                <p className="text-xs text-zinc-600">No README found</p>
               </div>
             )}
           </div>
@@ -295,29 +294,27 @@ export default function SkillDetail({ skill, onToggle, onDelete }: SkillDetailPr
 
         {activeTab === 'templates' && (
           <div className="flex h-full">
-            {/* Template list */}
             <div className="w-44 flex-shrink-0 border-r border-zinc-800 overflow-y-auto p-2">
               {templates.map((t) => (
                 <button
                   key={t}
                   onClick={() => setSelectedTemplate(t)}
-                  className={`w-full text-left px-2.5 py-2 rounded-lg text-xs truncate transition-all ${
+                  className={`w-full text-left px-2.5 py-2 rounded text-xs truncate transition-colors ${
                     selectedTemplate === t
-                      ? 'bg-violet-500/10 text-zinc-200 border border-violet-500/20'
-                      : 'text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300 border border-transparent'
+                      ? 'bg-zinc-800 text-zinc-100'
+                      : 'text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300'
                   }`}
                 >
                   {t}
                 </button>
               ))}
             </div>
-            {/* Template content */}
             <div className="flex-1 overflow-y-auto p-4">
               {selectedTemplate && templateContent ? (
                 <pre className="text-xs text-zinc-300 whitespace-pre-wrap leading-relaxed">{templateContent}</pre>
               ) : (
-                <div className="flex items-center justify-center h-full text-zinc-600">
-                  <p className="text-xs">Select a template to view</p>
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-xs text-zinc-600">Select a template to view</p>
                 </div>
               )}
             </div>
@@ -328,34 +325,20 @@ export default function SkillDetail({ skill, onToggle, onDelete }: SkillDetailPr
   )
 }
 
-function TabButton({
-  active,
-  onClick,
-  icon,
-  label,
-  count,
-}: {
-  active: boolean
-  onClick: () => void
-  icon: React.ReactNode
-  label: string
-  count?: number
+function TabButton({ active, onClick, icon, label, count }: {
+  active: boolean; onClick: () => void; icon: React.ReactNode; label: string; count?: number
 }) {
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-1.5 px-1 py-2.5 text-xs border-b-2 mr-4 transition-colors font-medium ${
-        active
-          ? 'border-violet-500 text-zinc-100'
-          : 'border-transparent text-zinc-500 hover:text-zinc-300'
+      className={`flex items-center gap-1.5 px-1 py-2.5 text-xs border-b-2 mr-5 transition-colors font-medium ${
+        active ? 'border-violet-500 text-zinc-100' : 'border-transparent text-zinc-500 hover:text-zinc-300'
       }`}
     >
       {icon}
       {label}
       {count !== undefined && (
-        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-          active ? 'bg-zinc-700 text-zinc-300' : 'bg-zinc-800 text-zinc-600'
-        }`}>
+        <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${active ? 'bg-zinc-700 text-zinc-300' : 'bg-zinc-800 text-zinc-600'}`}>
           {count}
         </span>
       )}
@@ -373,52 +356,34 @@ function MarkdownView({ content }: { content: string }) {
     const line = lines[i]
 
     if (line.startsWith('### ')) {
-      elements.push(
-        <h3 key={key++} className="font-heading text-sm text-zinc-200 mt-6 mb-2">
-          {line.slice(4)}
-        </h3>
-      )
+      elements.push(<h3 key={key++} className="font-heading text-sm text-zinc-200 mt-5 mb-2">{line.slice(4)}</h3>)
       i++
     } else if (line.startsWith('## ')) {
-      elements.push(
-        <h2 key={key++} className="font-heading text-base text-zinc-100 mt-7 mb-3 pb-2 border-b border-zinc-800">
-          {line.slice(3)}
-        </h2>
-      )
+      elements.push(<h2 key={key++} className="font-heading text-base text-zinc-100 mt-6 mb-2 pb-2 border-b border-zinc-800">{line.slice(3)}</h2>)
       i++
     } else if (line.startsWith('# ')) {
-      elements.push(
-        <h1 key={key++} className="font-heading text-lg text-zinc-100 mt-4 mb-3">
-          {line.slice(2)}
-        </h1>
-      )
+      elements.push(<h1 key={key++} className="font-heading text-lg text-zinc-100 mt-4 mb-3">{line.slice(2)}</h1>)
       i++
     } else if (line.startsWith('```')) {
       const lang = line.slice(3).trim()
       const codeLines: string[] = []
       i++
-      while (i < lines.length && !lines[i].startsWith('```')) {
-        codeLines.push(lines[i])
-        i++
-      }
+      while (i < lines.length && !lines[i].startsWith('```')) { codeLines.push(lines[i]); i++ }
       i++
       elements.push(
-        <div key={key++} className="my-4 rounded-lg overflow-hidden border border-zinc-800">
+        <div key={key++} className="my-3 rounded-lg overflow-hidden border border-zinc-800">
           {lang && (
-            <div className="flex items-center gap-1.5 bg-zinc-800/60 border-b border-zinc-800 px-3 py-1.5">
+            <div className="flex items-center bg-zinc-900 border-b border-zinc-800 px-3 py-1.5">
               <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-wide">{lang}</span>
             </div>
           )}
-          <pre className="!border-0 !rounded-none !m-0">
-            <code>{codeLines.join('\n')}</code>
-          </pre>
+          <pre className="!border-0 !rounded-none !m-0"><code>{codeLines.join('\n')}</code></pre>
         </div>
       )
     } else if (line.startsWith('- ') || line.startsWith('* ')) {
       const items: string[] = []
       while (i < lines.length && (lines[i].startsWith('- ') || lines[i].startsWith('* '))) {
-        items.push(lines[i].slice(2))
-        i++
+        items.push(lines[i].slice(2)); i++
       }
       elements.push(
         <ul key={key++} className="space-y-1.5 my-3 pl-1">
@@ -431,16 +396,12 @@ function MarkdownView({ content }: { content: string }) {
         </ul>
       )
     } else if (line === '---' || line === '***') {
-      elements.push(<hr key={key++} className="border-zinc-800 my-5" />)
+      elements.push(<hr key={key++} className="border-zinc-800 my-4" />)
       i++
     } else if (line.trim() === '') {
       i++
     } else {
-      elements.push(
-        <p key={key++} className="text-xs text-zinc-400 leading-relaxed my-2">
-          {line}
-        </p>
-      )
+      elements.push(<p key={key++} className="text-xs text-zinc-400 leading-relaxed my-2">{line}</p>)
       i++
     }
   }

@@ -36,10 +36,11 @@ html, body, #root {
 }
 
 body {
-  background: #0c0c0e;
-  color: #f4f4f5;
-  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  background: #0a0a0a;
+  color: #eeeeee;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Scrollbar */
@@ -51,17 +52,17 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
+  background: #333;
   border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
+  background: #444;
 }
 
 /* Code blocks in markdown */
 pre {
-  background: #111113;
-  border: 1px solid #27272a;
+  background: #111;
+  border: 1px solid #2a2a2a;
   border-radius: 8px;
   padding: 14px;
   overflow-x: auto;
@@ -75,9 +76,108 @@ code {
 }
 
 p code, li code {
-  background: #18181b;
-  border: 1px solid #27272a;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
   border-radius: 4px;
   padding: 1px 5px;
   font-size: 11px;
 }
+
+/* Light mode overrides */
+html.light {
+  color-scheme: light;
+}
+html.light body {
+  background: #f4f4f5 !important;
+  color: #18181b !important;
+}
+
+/* Backgrounds */
+html.light .bg-zinc-950 { background-color: #ffffff !important; }
+html.light .bg-zinc-900 { background-color: #f4f4f5 !important; }
+html.light .bg-zinc-800 { background-color: #e4e4e7 !important; }
+html.light .bg-zinc-700 { background-color: #d4d4d8 !important; }
+html.light .bg-black\/70 { background-color: rgba(0,0,0,0.5) !important; }
+
+/* Text */
+html.light .text-zinc-100 { color: #18181b !important; }
+html.light .text-zinc-200 { color: #27272a !important; }
+html.light .text-zinc-300 { color: #3f3f46 !important; }
+html.light .text-zinc-400 { color: #52525b !important; }
+html.light .text-zinc-500 { color: #71717a !important; }
+html.light .text-zinc-600 { color: #a1a1aa !important; }
+html.light .text-zinc-700 { color: #d4d4d8 !important; }
+html.light .placeholder-zinc-600::placeholder { color: #a1a1aa !important; }
+
+/* Borders */
+html.light .border-zinc-800 { border-color: #d4d4d8 !important; }
+html.light .border-zinc-700 { border-color: #a1a1aa !important; }
+html.light .border-zinc-600 { border-color: #71717a !important; }
+
+/* Opacity variants */
+html.light .bg-zinc-900\/60 { background-color: rgba(244,244,245,0.6) !important; }
+html.light .border-zinc-800\/60 { border-color: rgba(212,212,216,0.6) !important; }
+html.light .border-zinc-800\/40 { border-color: rgba(212,212,216,0.4) !important; }
+html.light .bg-zinc-800\/50 { background-color: rgba(228,228,231,0.5) !important; }
+html.light .border-zinc-700\/50 { border-color: rgba(161,161,170,0.5) !important; }
+
+/* Form elements */
+html.light input,
+html.light select,
+html.light textarea {
+  background-color: #ffffff !important;
+  color: #18181b !important;
+  border-color: #d4d4d8 !important;
+}
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #a1a1aa !important;
+}
+html.light select option {
+  background-color: #ffffff;
+  color: #18181b;
+}
+
+/* Code blocks */
+html.light pre {
+  background: #f4f4f5 !important;
+  border-color: #d4d4d8 !important;
+  color: #27272a !important;
+}
+html.light code { color: #27272a !important; }
+html.light p code, html.light li code {
+  background: #e4e4e7 !important;
+  border-color: #d4d4d8 !important;
+}
+
+/* Scrollbar */
+html.light ::-webkit-scrollbar-thumb { background: #d4d4d8 !important; }
+html.light ::-webkit-scrollbar-thumb:hover { background: #a1a1aa !important; }
+
+/* Hover overrides - keep hover states working */
+html.light .hover\:bg-zinc-800:hover { background-color: #e4e4e7 !important; }
+html.light .hover\:bg-zinc-900:hover { background-color: #ebebec !important; }
+html.light .hover\:bg-zinc-700:hover { background-color: #d4d4d8 !important; }
+html.light .hover\:bg-zinc-900\/60:hover { background-color: rgba(235,235,236,0.6) !important; }
+
+/* Radix tab active state in light mode */
+html.light [role="tab"][data-state="active"] { background-color: #e4e4e7 !important; color: #18181b !important; }
+
+/* Radix select in light mode */
+html.light .select-trigger { background-color: #ffffff !important; border-color: #d4d4d8 !important; color: #52525b !important; }
+html.light .select-content { background-color: #ffffff !important; border-color: #d4d4d8 !important; }
+html.light .select-item { color: #27272a !important; }
+html.light .select-item[data-highlighted] { background-color: #f4f4f5 !important; color: #18181b !important; }
+html.light .select-item[data-state="checked"] { color: #18181b !important; }
+
+/* Active (touch tap) overrides for light mode */
+html.light .active\:bg-zinc-900:active { background-color: #ebebec !important; }
+html.light .active\:bg-zinc-900\/60:active { background-color: rgba(235,235,236,0.6) !important; }
+html.light .active\:bg-zinc-800:active { background-color: #e4e4e7 !important; }
+
+/* Tool icons designed for dark backgrounds */
+html.light .goose-icon { filter: invert(1); }
+
+/* Primary buttons (bg-black) stay dark in light mode */
+html.light button.bg-black { background-color: #111111 !important; color: #ffffff !important; }
+html.light button.bg-black:hover { background-color: #2a2a2a !important; }

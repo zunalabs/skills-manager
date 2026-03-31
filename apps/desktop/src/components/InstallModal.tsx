@@ -5,6 +5,7 @@ import { X } from 'lucide-react'
 import { ToolIcon } from './ToolIcon'
 import { DiscoveredSkill } from '../types'
 import { inferSkillDirName } from '../lib/repoUtils'
+import { toast } from 'sonner'
 
 interface InstallModalProps {
   onClose: () => void
@@ -53,8 +54,16 @@ export default function InstallModal({ onClose, onInstalled, defaultRepo }: Inst
     setFetchError('')
     const res = await window.skillsAPI.discoverSkills(repo.trim())
     setFetching(false)
-    if (!res.ok) { setFetchError(res.error ?? 'Failed to fetch repo'); return }
-    if (res.skills.length === 0) { setFetchError('No skills found in this repo'); return }
+    if (!res.ok) {
+      setFetchError(res.error ?? 'Failed to fetch repo')
+      toast.error(`Discovery failed: ${res.error || 'Check repository URL'}`)
+      return
+    }
+    if (res.skills.length === 0) {
+      setFetchError('No skills found in this repo')
+      toast.warning('No skills discovered in this repository')
+      return
+    }
     setDiscoveredSkills(res.skills)
     const inferredDirName = inferSkillDirName(repo.trim())
     const dirMatch = inferredDirName
@@ -102,7 +111,12 @@ export default function InstallModal({ onClose, onInstalled, defaultRepo }: Inst
     }
     const combined = { ok: !lastError, installed: allInstalled, error: lastError }
     setResult(combined)
-    if (allInstalled.length > 0) onInstalled()
+    if (allInstalled.length > 0) {
+      onInstalled()
+      toast.success(`Installed ${allInstalled.length} skill${allInstalled.length === 1 ? '' : 's'}`)
+    } else if (!combined.ok) {
+      toast.error(`Installation failed: ${combined.error || 'Unknown error'}`)
+    }
   }
 
   const canInstall = selectedSkills.size > 0 && targetAgents.size > 0
