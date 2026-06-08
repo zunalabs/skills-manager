@@ -8,8 +8,8 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "dev:desktop": "turbo dev --filter=apps/desktop",
-    "dev:web": "turbo dev --filter=apps/web",
+    "dev:desktop": "turbo dev --filter=skills-manager-desktop",
+    "dev:web": "turbo dev --filter=skills-manager-web",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
