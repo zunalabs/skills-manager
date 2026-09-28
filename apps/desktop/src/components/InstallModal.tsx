@@ -6,6 +6,7 @@ import { ToolIcon } from './ToolIcon'
 import { DiscoveredSkill } from '../types'
 import { inferSkillDirName } from '../lib/repoUtils'
 import { toast } from 'sonner'
+import { trackTelemetry } from '../lib/telemetry'
 
 interface InstallModalProps {
   onClose: () => void
@@ -106,6 +107,11 @@ export default function InstallModal({ onClose, onInstalled, defaultRepo }: Inst
     let lastError: string | undefined
     for (const agent of targetAgents) {
       const res = await window.skillsAPI.installFromGitHub(repo.trim(), agent, skillsToInstall)
+      void trackTelemetry('install_completed', {
+        source_type: 'github',
+        target_agent: agent,
+        success: res.ok,
+      })
       if (res.installed.length > 0) allInstalled.push(...res.installed)
       if (!res.ok) lastError = res.error
     }

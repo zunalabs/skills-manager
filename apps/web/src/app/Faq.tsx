@@ -25,7 +25,7 @@ const items = [
   },
   {
     q: 'Is it free?',
-    a: 'Yes. Skills Manager is open source under the MIT license and does not require an account. Sponsorship is optional. The website uses anonymous aggregate analytics, while desktop usage analytics are currently off.',
+    a: 'Yes. Skills Manager is open source under the MIT license and does not require an account. Sponsorship is optional. The website uses anonymous aggregate analytics, and the desktop app sends restricted anonymous usage events.',
   },
   {
     q: 'Which agents are supported?',

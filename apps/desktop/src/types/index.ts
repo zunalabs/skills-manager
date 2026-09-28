@@ -61,8 +61,10 @@ declare global {
   interface Window {
     skillsAPI: {
       platform: string
+      architecture: string
       windowControl: (action: 'minimize' | 'maximize' | 'close') => Promise<boolean>
       editAction: (action: 'undo' | 'redo' | 'cut' | 'copy' | 'paste' | 'selectAll') => Promise<void>
+      trackTelemetry: (eventName: TelemetryEventName, properties?: Record<string, string | number | boolean>) => Promise<void>
       scanAll: () => Promise<ToolSummary[]>
       getReadme: (skillPath: string) => Promise<string>
       listTemplates: (skillPath: string) => Promise<string[]>
@@ -90,3 +92,11 @@ declare global {
     }
   }
 }
+
+export type TelemetryEventName =
+  | 'app_opened'
+  | 'scan_completed'
+  | 'install_completed'
+  | 'copy_completed'
+  | 'discover_opened'
+  | 'feedback_submitted'

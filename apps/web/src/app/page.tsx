@@ -185,7 +185,7 @@ export default function Home() {
         'name': 'Is it free?',
         'acceptedAnswer': {
           '@type': 'Answer',
-          'text': 'Yes. Skills Manager is open source under the MIT license and does not require an account. The website uses anonymous aggregate analytics; desktop usage analytics are currently off.'
+          'text': 'Yes. Skills Manager is open source under the MIT license and does not require an account. The website uses anonymous aggregate analytics, and the desktop app sends restricted anonymous usage events.'
         }
       }
     ]

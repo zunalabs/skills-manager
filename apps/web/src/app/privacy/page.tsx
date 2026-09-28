@@ -7,7 +7,7 @@ export default function PrivacyPage() {
     <LegalPage eyebrow="Legal" title="Privacy, in plain language." updated="September 28, 2026">
       <section>
         <h2>The short version</h2>
-        <p>Skills Manager is built to work locally. We do not sell personal information, run ads, or read the contents of your skills for analytics. The desktop app does not currently send usage analytics.</p>
+        <p>Skills Manager is built to work locally. We do not sell personal information, run ads, or read the contents of your skills for analytics. The desktop app sends restricted anonymous usage events.</p>
       </section>
       <section>
         <h2>What the desktop app accesses</h2>
@@ -25,11 +25,12 @@ export default function PrivacyPage() {
       </section>
       <section>
         <h2>Desktop analytics</h2>
-        <p>Anonymous desktop usage analytics are not enabled in the current release. Before they are introduced, this page and the app will show exactly which events are collected and provide a clear control.</p>
+        <p>We use Aptabase to measure anonymous events such as opening the app, completing a scan, opening Discover, install and copy outcomes, and submitting feedback. Aptabase also attaches general system information such as app version, operating system, and locale.</p>
+        <p className="mt-3">Desktop analytics never include skill names or contents, file paths, repository URLs, GitHub tokens, feedback text, email addresses, IP addresses, or a persistent device identifier.</p>
       </section>
       <section>
         <h2>Service providers</h2>
-        <p>We use GitHub for source code and releases, Vercel to host the website and provide aggregate web analytics, and Discord to receive feedback. Their own privacy terms apply when their services process information.</p>
+        <p>We use GitHub for source code and releases, Vercel to host the website and provide aggregate web analytics, Discord to receive feedback and download events, and Aptabase for anonymous desktop usage analytics. Their own privacy terms apply when their services process information.</p>
       </section>
       <section>
         <h2>Your choices</h2>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import * as RadixDialog from '@radix-ui/react-dialog'
 import { Bug, Lightbulb, MessageCircle, Send, X } from 'lucide-react'
 import { FeedbackPayload } from '../types'
+import { trackTelemetry } from '../lib/telemetry'
 
 const categories = [
   { value: 'bug', label: 'Bug', icon: Bug },
@@ -28,7 +29,13 @@ export default function FeedbackModal({ onClose }: { onClose: () => void }) {
       message: message.trim(),
       email: email.trim() || undefined,
     })
-    if (result.ok) setStatus('sent')
+    if (result.ok) {
+      void trackTelemetry('feedback_submitted', {
+        category,
+        has_rating: rating !== undefined,
+      })
+      setStatus('sent')
+    }
     else {
       setStatus('error')
       setError(result.error || 'Feedback could not be sent right now.')

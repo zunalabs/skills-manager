@@ -6,6 +6,31 @@ import os from 'os'
 import yaml from 'js-yaml'
 import https from 'https'
 import chokidar from 'chokidar'
+import { initialize as initializeAptabase, trackEvent as trackAptabaseEvent } from '@aptabase/electron/main'
+
+const APTABASE_APP_KEY = 'A-US-2773624305'
+void initializeAptabase(APTABASE_APP_KEY)
+
+const TELEMETRY_PROPERTIES: Record<string, Set<string>> = {
+  app_opened: new Set(['architecture']),
+  scan_completed: new Set(['duration', 'connected_agents', 'skills']),
+  install_completed: new Set(['source_type', 'target_agent', 'success']),
+  copy_completed: new Set(['source_agent', 'target_agent', 'success']),
+  discover_opened: new Set(),
+  feedback_submitted: new Set(['category', 'has_rating']),
+}
+
+function sendTelemetry(eventName: string, properties: Record<string, unknown> = {}) {
+  if (!Object.prototype.hasOwnProperty.call(TELEMETRY_PROPERTIES, eventName)) return
+  const allowedKeys = TELEMETRY_PROPERTIES[eventName]
+  const safeProperties: Record<string, string | number | boolean> = {}
+  for (const [key, value] of Object.entries(properties)) {
+    if (allowedKeys.has(key) && ['string', 'number', 'boolean'].includes(typeof value)) {
+      safeProperties[key] = value as string | number | boolean
+    }
+  }
+  void trackAptabaseEvent(eventName, safeProperties)
+}
 
 const home = os.homedir()
 
@@ -338,6 +363,10 @@ ipcMain.handle('window:edit', (event, action: 'undo' | 'redo' | 'cut' | 'copy' |
   if (action === 'copy') contents.copy()
   if (action === 'paste') contents.paste()
   if (action === 'selectAll') contents.selectAll()
+})
+
+ipcMain.handle('telemetry:track', (_event, eventName: string, properties?: Record<string, unknown>) => {
+  sendTelemetry(eventName, properties)
 })
 
 ipcMain.handle('skills:scanAll', () => scanAllTools())

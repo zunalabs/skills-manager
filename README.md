@@ -34,6 +34,8 @@ Windows and Linux are available now. A signed and notarized macOS build is in pr
 - Delete skills
 - Send feedback from the desktop app
 
+Anonymous product analytics measure feature use and reliability. They never include skill content, file paths, repository URLs, feedback text, email, or tokens.
+
 ## Support
 
 Skills Manager is free and open source. You can support continued development through [GitHub Sponsors](https://github.com/sponsors/evergreenx).

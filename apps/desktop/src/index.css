@@ -603,7 +603,7 @@ html.light .app-switch > span { background: #fff !important; }
 .app-overlay { background: rgba(0, 0, 0, .52) !important; backdrop-filter: blur(3px); animation: overlay-in .16s ease-out; }
 .app-dialog { border-color: var(--line-strong) !important; background: var(--panel) !important; box-shadow: 0 24px 80px rgba(0,0,0,.35) !important; }
 .install-dialog { width: min(520px, calc(100vw - 40px)); border-radius: 14px !important; animation: modal-in .18s cubic-bezier(.2,.8,.2,1); }
-.settings-dialog { width: 320px !important; animation: drawer-in .2s cubic-bezier(.2,.8,.2,1); }
+.settings-dialog { top: 37px !important; width: 320px !important; height: calc(100% - 37px) !important; animation: drawer-in .2s cubic-bezier(.2,.8,.2,1); }
 html.light .app-overlay { background: rgba(22, 22, 20, .25) !important; }
 html.light .app-dialog { box-shadow: 0 24px 70px rgba(30,30,25,.16) !important; }
 
@@ -647,6 +647,14 @@ html.light .app-dialog { box-shadow: 0 24px 70px rgba(30,30,25,.16) !important; 
 .settings-about { display: flex; justify-content: space-between; color: var(--muted); font-size: 10px; }
 .settings-creator { width: 100%; display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding: 9px 10px; color: var(--muted); background: var(--control); border: 1px solid var(--line); border-radius: 7px; font-size: 10px; cursor: pointer; }
 .settings-creator:hover { color: var(--ink); border-color: var(--line-strong); }
+
+/* Telemetry notice */
+.telemetry-notice { position: fixed; z-index: 80; right: 18px; bottom: 18px; width: min(500px, calc(100vw - 36px)); display: grid; grid-template-columns: auto 1fr auto; align-items: start; gap: 11px; padding: 13px; color: var(--ink); background: var(--panel-raised); border: 1px solid var(--line-strong); border-radius: 11px; box-shadow: 0 18px 50px var(--shadow-strong); }
+.telemetry-notice-icon { width: 30px; height: 30px; display: grid; place-items: center; color: var(--panel); background: var(--ink); border-radius: 8px; }
+.telemetry-notice strong { display: block; margin-top: 1px; font-size: 11px; font-weight: 620; }
+.telemetry-notice p { margin: 4px 0 0; color: var(--muted); font-size: 9px; line-height: 1.5; }
+.telemetry-dismiss { width: 25px; height: 25px; display: grid; place-items: center; color: var(--faint); background: transparent; border: 0; border-radius: 6px; cursor: pointer; }
+.telemetry-dismiss:hover { color: var(--ink); background: var(--hover); }
 
 /* Feedback */
 .feedback-dialog { width: min(480px, calc(100vw - 40px)); max-height: calc(100vh - 48px); overflow-y: auto; border: 1px solid var(--line-strong); border-radius: 14px; color: var(--ink); transform: translate(-50%, -50%); animation: modal-in .18s cubic-bezier(.2,.8,.2,1); }

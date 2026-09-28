@@ -2,8 +2,11 @@ import { contextBridge, ipcRenderer } from 'electron'
 
 contextBridge.exposeInMainWorld('skillsAPI', {
   platform: process.platform,
+  architecture: process.arch,
   windowControl: (action: 'minimize' | 'maximize' | 'close') => ipcRenderer.invoke('window:control', action),
   editAction: (action: 'undo' | 'redo' | 'cut' | 'copy' | 'paste' | 'selectAll') => ipcRenderer.invoke('window:edit', action),
+  trackTelemetry: (eventName: string, properties?: Record<string, string | number | boolean>) =>
+    ipcRenderer.invoke('telemetry:track', eventName, properties),
   scanAll: () => ipcRenderer.invoke('skills:scanAll'),
   getReadme: (skillPath: string) => ipcRenderer.invoke('skills:getReadme', skillPath),
   listTemplates: (skillPath: string) => ipcRenderer.invoke('skills:listTemplates', skillPath),

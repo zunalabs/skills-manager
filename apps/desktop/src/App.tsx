@@ -9,9 +9,11 @@ import SettingsPanel from './components/SettingsPanel'
 import AppNav from './components/AppNav'
 import TitleBar from './components/TitleBar'
 import FeedbackModal from './components/FeedbackModal'
+import TelemetryNotice from './components/TelemetryNotice'
 import { ToolIcon } from './components/ToolIcon'
 import { categorizeSkills } from './lib/categorize'
 import { Toaster, toast } from 'sonner'
+import { countBucket, durationBucket, trackTelemetry } from './lib/telemetry'
 
 const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
@@ -47,6 +49,9 @@ export default function App() {
     () => new Set(JSON.parse(localStorage.getItem('skills-manager-favourites') ?? '[]'))
   )
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [showTelemetryNotice, setShowTelemetryNotice] = useState(
+    () => localStorage.getItem('skills-manager-telemetry-notice-seen') !== 'true'
+  )
 
   // Apply theme class to <html>
   useEffect(() => {
@@ -60,6 +65,10 @@ export default function App() {
     setSettings(s)
     localStorage.setItem('skills-manager-settings', JSON.stringify(s))
   }
+
+  useEffect(() => {
+    void trackTelemetry('app_opened', { architecture: window.skillsAPI.architecture })
+  }, [])
 
   const handleToggleFavourite = (skillId: string) => {
     setFavourites((prev) => {
@@ -79,9 +88,15 @@ export default function App() {
 
   const loadSkills = useCallback(async () => {
     setLoading(true)
+    const startedAt = performance.now()
     try {
       const data = await window.skillsAPI.scanAll()
       setTools(data)
+      void trackTelemetry('scan_completed', {
+        duration: durationBucket(performance.now() - startedAt),
+        connected_agents: countBucket(data.filter((tool) => tool.exists).length),
+        skills: countBucket(data.reduce((sum, tool) => sum + tool.skillCount, 0)),
+      })
     } catch (err) {
       console.error('Failed to scan skills:', err)
       toast.error('Failed to scan skill directories')
@@ -93,6 +108,10 @@ export default function App() {
   useEffect(() => {
     loadSkills()
   }, [loadSkills])
+
+  useEffect(() => {
+    if (view === 'discover') void trackTelemetry('discover_opened')
+  }, [view])
 
   // Re-scan when files change on disk (respects fileWatcher setting)
   useEffect(() => {
@@ -230,6 +249,14 @@ export default function App() {
       {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
       </section>
       </div>
+      {showTelemetryNotice && (
+        <TelemetryNotice
+          onDismiss={() => {
+            localStorage.setItem('skills-manager-telemetry-notice-seen', 'true')
+            setShowTelemetryNotice(false)
+          }}
+        />
+      )}
       <Toaster
         richColors
         closeButton

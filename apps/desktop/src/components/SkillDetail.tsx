@@ -3,6 +3,7 @@ import { Skill } from '../types'
 import { FolderOpen, Code, FileText, ChevronRight, Trash2, Copy, Star } from 'lucide-react'
 import { ToolIcon } from './ToolIcon'
 import { toast } from 'sonner'
+import { trackTelemetry } from '../lib/telemetry'
 
 interface SkillDetailProps {
   skill: Skill
@@ -229,6 +230,11 @@ export default function SkillDetail({ skill, onDelete, isFavourite, onToggleFavo
                         setCopyError(null)
                         setCopyStatus((prev) => ({ ...prev, [agent]: 'idle' }))
                         const res = await window.skillsAPI.copyToAgent(skill.path, agent)
+                        void trackTelemetry('copy_completed', {
+                          source_agent: skill.tool,
+                          target_agent: agent,
+                          success: res.ok,
+                        })
                         if (res.ok) {
                           setCopyStatus((prev) => ({ ...prev, [agent]: 'ok' }))
                           toast.success(`Copied to ${agent}`)
