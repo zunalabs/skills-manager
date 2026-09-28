@@ -1,0 +1,38 @@
+name: Build macOS release candidate
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build, sign, and notarize macOS apps
+        env:
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: npm run electron:build --workspace apps/desktop -- --mac --config.mac.notarize=true
+
+      - name: Upload signed macOS candidates
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-release-candidate
+          path: |
+            apps/desktop/release/*.dmg
+            apps/desktop/release/*.zip

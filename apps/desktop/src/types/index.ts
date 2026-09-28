@@ -60,6 +60,7 @@ export interface DiscoverResult {
 declare global {
   interface Window {
     skillsAPI: {
+      platform: string
       windowControl: (action: 'minimize' | 'maximize' | 'close') => Promise<boolean>
       editAction: (action: 'undo' | 'redo' | 'cut' | 'copy' | 'paste' | 'selectAll') => Promise<void>
       scanAll: () => Promise<ToolSummary[]>

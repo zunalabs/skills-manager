@@ -1,6 +1,6 @@
 export function AgentIcon({ agent, size = 24 }: { agent: string; size?: number }) {
   if (agent === 'Claude Code') return <ClaudeCodeIcon size={size} />
-  if (agent === 'Antigravity') return <AntigravityIcon size={size} />
+  if (agent === 'Antigravity' || agent === 'Antigravity CLI') return <AntigravityIcon size={size} />
   if (agent === 'Goose') return <img src="/goose.png" width={size} height={size} style={{ objectFit: 'contain' }} alt="Goose" />
   if (agent === 'GitHub Copilot') return <GitHubCopilotIcon size={size} />
   if (agent === 'Kilo Code') return <KiloCodeIcon size={size} />

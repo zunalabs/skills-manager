@@ -89,11 +89,13 @@ export default function TitleBar({
       </nav>
 
       <div className="window-drag-region" />
-      <div className="window-controls" onDoubleClick={(event) => event.stopPropagation()}>
-        <button onClick={() => void window.skillsAPI.windowControl('minimize')} aria-label="Minimize"><Minus size={15} /></button>
-        <button onClick={() => void window.skillsAPI.windowControl('maximize')} aria-label="Maximize or restore"><Square size={12} /></button>
-        <button className="close" onClick={() => void window.skillsAPI.windowControl('close')} aria-label="Close"><X size={15} /></button>
-      </div>
+      {window.skillsAPI.platform !== 'darwin' && (
+        <div className="window-controls" onDoubleClick={(event) => event.stopPropagation()}>
+          <button onClick={() => void window.skillsAPI.windowControl('minimize')} aria-label="Minimize"><Minus size={15} /></button>
+          <button onClick={() => void window.skillsAPI.windowControl('maximize')} aria-label="Maximize or restore"><Square size={12} /></button>
+          <button className="close" onClick={() => void window.skillsAPI.windowControl('close')} aria-label="Close"><X size={15} /></button>
+        </div>
+      )}
     </div>
   )
 }

@@ -2,6 +2,8 @@
 
 A universal desktop app for managing AI agent skills across all major coding agents.
 
+Windows and Linux are available now. A signed and notarized macOS build is in preparation.
+
 ## Apps
 
 | App | Description |
@@ -30,6 +32,13 @@ A universal desktop app for managing AI agent skills across all major coding age
 - Install skills from any GitHub repo
 - Copy skills between agents
 - Delete skills
+- Send feedback from the desktop app
+
+## Support
+
+Skills Manager is free and open source. You can support continued development through [GitHub Sponsors](https://github.com/sponsors/evergreenx).
+
+Production and macOS release preparation are documented in [`PRODUCTION.md`](./PRODUCTION.md).
 
 ## Development
 

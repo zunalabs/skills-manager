@@ -7,7 +7,6 @@ import ScrollReveal from './ScrollReveal'
 import { CardSpotlight } from './CardSpotlight'
 import { TracingBeam } from './TracingBeam'
 import { LampContainer } from './LampContainer'
-import { MovingBorderButton } from './MovingBorder'
 import { ShootingStars } from './ShootingStars'
 import { Spotlight } from './Spotlight'
 import { HeroHighlight } from './HeroHighlight'
@@ -25,14 +24,15 @@ const agents = [
   'Claude Code',
   'Cursor',
   'Gemini CLI',
+  'Antigravity CLI',
   'Windsurf',
+  'Devin Desktop',
   'GitHub Copilot',
   'Goose',
   'OpenAI Codex',
   'OpenCode',
   'Kilo Code',
   'Trae',
-  'Antigravity',
 ]
 
 const features = [
@@ -78,15 +78,54 @@ const features = [
         <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1.5" />
       </svg>
     ),
-    title: 'Enable / disable',
+    title: 'Inspect before you use',
     description:
-      'Toggle any skill on or off without deleting it. Experiment freely and roll back without losing your setup.',
+      'Read instructions and inspect included templates before copying a skill into another agent.',
   },
 ]
 
+type DetectedOS = 'windows' | 'linux' | 'mac' | null
+
+function WindowsIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 88 88" fill="currentColor" aria-hidden>
+      <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
+    </svg>
+  )
+}
+
+function DownloadOptions({ detectedOS }: { detectedOS: DetectedOS }) {
+  const primary = detectedOS === 'linux' ? 'linux' : 'windows'
+  const linkClass = 'inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-full transition-colors'
+
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-3">
+      {detectedOS === 'mac' && (
+        <span className={`${linkClass} bg-white text-black`}>
+          macOS release in preparation
+        </span>
+      )}
+      <a
+        href={`/api/download?platform=${primary}`}
+        className={`${linkClass} ${detectedOS === 'mac' ? 'text-[#858585] border border-[rgba(255,255,255,0.12)] hover:text-white' : 'bg-white text-black hover:bg-neutral-100'}`}
+      >
+        {primary === 'linux' ? <Image src="/linux.svg" alt="Linux" width={14} height={14} /> : <WindowsIcon />}
+        Download for {primary === 'linux' ? 'Linux' : 'Windows'}
+      </a>
+      <a
+        href={`/api/download?platform=${primary === 'linux' ? 'windows' : 'linux'}`}
+        className={`${linkClass} text-[#858585] border border-[rgba(255,255,255,0.12)] hover:border-[rgba(255,255,255,0.3)] hover:text-white`}
+      >
+        {primary === 'linux' ? <WindowsIcon /> : <Image src="/linux.svg" alt="Linux" width={14} height={14} />}
+        Download for {primary === 'linux' ? 'Windows' : 'Linux'}
+      </a>
+    </div>
+  )
+}
+
 export default function Home() {
   const [downloads, setDownloads] = useState<number | null>(null)
-  const [detectedOS, setDetectedOS] = useState<'windows' | 'linux' | null>(null)
+  const [detectedOS, setDetectedOS] = useState<DetectedOS>(null)
 
   useEffect(() => {
     fetch('/api/downloads')
@@ -97,7 +136,8 @@ export default function Home() {
 
   useEffect(() => {
     const ua = navigator.userAgent.toLowerCase()
-    if (ua.includes('linux')) setDetectedOS('linux')
+    if (ua.includes('mac')) setDetectedOS('mac')
+    else if (ua.includes('linux')) setDetectedOS('linux')
     else setDetectedOS('windows')
   }, [])
 
@@ -105,7 +145,7 @@ export default function Home() {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
     'name': 'Skills Manager',
-    'operatingSystem': 'macOS, Windows, Linux',
+    'operatingSystem': 'Windows, Linux',
     'applicationCategory': 'DeveloperApplication',
     'description': 'Universal AI agent skills manager for Claude Code, Cursor, Copilot, and more.',
     'offers': {
@@ -114,9 +154,9 @@ export default function Home() {
       'priceCurrency': 'USD'
     },
     'author': {
-      '@type': 'Organization',
-      'name': 'Zunalabs',
-      'url': 'https://github.com/zunalabs'
+      '@type': 'Person',
+      'name': 'ido evergreen',
+      'url': 'https://idoevergreen.me'
     }
   }
 
@@ -137,7 +177,7 @@ export default function Home() {
         'name': 'Which agents are supported?',
         'acceptedAnswer': {
           '@type': 'Answer',
-          'text': 'Currently supported agents include Claude Code, Cursor, Gemini CLI, Windsurf, GitHub Copilot, Goose, OpenAI Codex, OpenCode, Kilo Code, Trae, and Antigravity.'
+          'text': 'Currently supported agents include Claude Code, Cursor, Gemini CLI, Antigravity CLI, Windsurf, Devin Desktop, GitHub Copilot, Goose, OpenAI Codex, OpenCode, Kilo Code, and Trae.'
         }
       },
       {
@@ -145,7 +185,7 @@ export default function Home() {
         'name': 'Is it free?',
         'acceptedAnswer': {
           '@type': 'Answer',
-          'text': 'Yes. Skills Manager is fully open source under the MIT license with no accounts or telemetry.'
+          'text': 'Yes. Skills Manager is open source under the MIT license and does not require an account. The website uses anonymous aggregate analytics; desktop usage analytics are currently off.'
         }
       }
     ]
@@ -226,51 +266,11 @@ export default function Home() {
                 className="text-[1rem] leading-relaxed text-[#858585] mb-10 md:hidden"
                 {...fadeUp(0.05)}
               >
-                Install, manage, and share skills across every major coding agent — Claude Code, Cursor, Windsurf, GitHub Copilot, Gemini CLI, Goose, OpenAI Codex, OpenCode, Kilo Code, Trae, and Antigravity.
+                Install, inspect, and share skills across major coding agents — including Claude Code, Cursor, Codex, Copilot, Gemini CLI, Antigravity CLI, Windsurf, and Devin Desktop.
               </motion.p>
 
               <motion.div id="download" className="flex flex-wrap gap-3" {...fadeUp(0.1)}>
-                {/* Primary — detected OS */}
-                {detectedOS === 'linux' ? (
-                  <a
-                    href="/api/download?platform=linux"
-                    className="inline-flex items-center gap-2 bg-white text-black text-sm font-semibold px-6 py-3 rounded-full hover:bg-neutral-100 transition-colors"
-                  >
-                    <Image src="/linux.svg" alt="Linux" width={14} height={14} />
-                    Download for Linux
-                  </a>
-                ) : (
-                  <a
-                    href="/api/download?platform=windows"
-                    className="inline-flex items-center gap-2 bg-white text-black text-sm font-semibold px-6 py-3 rounded-full hover:bg-neutral-100 transition-colors"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
-                      <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
-                    </svg>
-                    Download for Windows
-                  </a>
-                )}
-
-                {/* Secondary — other OS */}
-                {detectedOS === 'linux' ? (
-                  <a
-                    href="/api/download?platform=windows"
-                    className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.12)] hover:border-[rgba(255,255,255,0.3)] px-6 py-3 rounded-full transition-colors"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
-                      <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
-                    </svg>
-                    Download for Windows
-                  </a>
-                ) : (
-                  <a
-                    href="/api/download?platform=linux"
-                    className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.12)] hover:border-[rgba(255,255,255,0.3)] px-6 py-3 rounded-full transition-colors"
-                  >
-                    <Image src="/linux.svg" alt="Linux" width={14} height={14} />
-                    Download for Linux
-                  </a>
-                )}
+                <DownloadOptions detectedOS={detectedOS} />
               </motion.div>
             </div>
 
@@ -280,7 +280,7 @@ export default function Home() {
                 className="text-[1rem] leading-relaxed text-[#858585]"
                 {...fadeUp(0.05)}
               >
-                Install, manage, and share skills across every major coding agent — Claude Code, Cursor, Windsurf, GitHub Copilot, Gemini CLI, Goose, OpenAI Codex, OpenCode, Kilo Code, Trae, and Antigravity.
+                Keep reusable instructions organized across Claude Code, Cursor, Codex, Copilot, Gemini CLI, Antigravity CLI, Windsurf, Devin Desktop, and more.
               </motion.p>
             </div>
           </div>
@@ -536,49 +536,7 @@ export default function Home() {
             Free and open source. Windows and Linux available now. Mac coming soon.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            {detectedOS === 'linux' ? (
-              <MovingBorderButton
-                as="a"
-                href="/api/download?platform=linux"
-                containerClassName="h-[46px]"
-                innerClassName="gap-2 bg-white text-black text-sm font-semibold px-6 rounded-full hover:bg-neutral-100 transition-colors"
-              >
-                <Image src="/linux.svg" alt="Linux" width={15} height={15} />
-                Download for Linux
-              </MovingBorderButton>
-            ) : (
-              <MovingBorderButton
-                as="a"
-                href="/api/download?platform=windows"
-                containerClassName="h-[46px]"
-                innerClassName="gap-2 bg-white text-black text-sm font-semibold px-6 rounded-full hover:bg-neutral-100 transition-colors"
-              >
-                <svg width="15" height="15" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
-                  <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
-                </svg>
-                Download for Windows
-              </MovingBorderButton>
-            )}
-            {detectedOS === 'linux' ? (
-              <a
-                href="/api/download?platform=windows"
-                className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
-              >
-                <svg width="15" height="15" viewBox="0 0 88 88" fill="currentColor" aria-hidden>
-                  <path d="M0 12.402l35.687-4.86.016 34.423-35.67.203zm35.67 33.529l.028 34.453L.028 75.48.026 45.7zm4.326-39.025L87.314 0v41.527l-47.318.376zm47.329 39.349l-.066 41.344-47.318-6.63-.066-34.893z"/>
-                </svg>
-                Download for Windows
-              </a>
-            ) : (
-              <a
-                href="/api/download?platform=linux"
-                className="inline-flex items-center gap-2 text-sm text-[#858585] hover:text-white border border-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.15)] px-6 py-3 rounded-full transition-colors"
-              >
-                <Image src="/linux.svg" alt="Linux" width={15} height={15} />
-                Download for Linux
-              </a>
-            )}
-
+            <DownloadOptions detectedOS={detectedOS} />
           </div>
         </ScrollReveal>
       </section>

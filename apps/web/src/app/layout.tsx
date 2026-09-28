@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://sm.idoevergreen.me'),
   title: 'Skills Manager — Universal AI Agent Skills',
   description:
-    'Browse, install, enable, and share AI agent skills across all major coding agents in one desktop app.',
+    'Browse, install, inspect, and share AI agent skills across major coding agents in one desktop app.',
   alternates: {
     canonical: '/',
   },

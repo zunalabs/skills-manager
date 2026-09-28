@@ -26,6 +26,14 @@
 - Added Devin Desktop at `~/.config/devin/skills` and retained Windsurf support.
 - Skills found in both current and legacy directories are combined without duplicate names.
 
+### Website and release preparation
+
+- Updated the website to match the current desktop interface, supported agents, and Windows/Linux availability.
+- Added minimal download measurement that reports only the selected operating system and Vercel country code to the project's private Discord workspace.
+- Updated the Privacy page to describe website analytics, download measurement, and the desktop app's current telemetry status.
+- Prepared native macOS window behavior and a workflow for signed, notarized DMG and ZIP release candidates for Intel and Apple silicon.
+- Added a separate manual macOS release workflow so Windows and Linux publishing remains unchanged while Mac builds are tested.
+
 ### Upgrade behavior
 
 Existing skill folders remain in place. Skills Manager reads supported legacy locations and installs new skills into each agent's current primary directory.

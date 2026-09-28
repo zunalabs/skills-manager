@@ -1,11 +1,11 @@
 import { AgentIcon } from './AgentIcon'
 
 const mockSkills = [
-  { agent: 'Claude Code', name: 'format-commits',   enabled: true,  selected: true  },
-  { agent: 'Cursor',       name: 'enforce-types',    enabled: true,  selected: false },
-  { agent: 'Windsurf',     name: 'code-review',      enabled: false, selected: false },
-  { agent: 'GitHub Copilot', name: 'test-generator', enabled: true,  selected: false },
-  { agent: 'Gemini CLI',   name: 'api-docs',         enabled: false, selected: false },
+  { agent: 'Claude Code', name: 'format-commits', selected: true  },
+  { agent: 'Cursor', name: 'enforce-types', selected: false },
+  { agent: 'Antigravity CLI', name: 'code-review', selected: false },
+  { agent: 'GitHub Copilot', name: 'test-generator', selected: false },
+  { agent: 'Devin Desktop', name: 'api-docs', selected: false },
 ]
 
 const selected = mockSkills[0]
@@ -45,7 +45,7 @@ export default function AppMockup() {
           className="text-[10px] font-medium text-white px-2.5 py-1 rounded-md"
           style={{ background: '#7c3aed' }}
         >
-          + Install
+          + Add skill
         </button>
       </div>
 
@@ -78,10 +78,7 @@ export default function AppMockup() {
                   {skill.agent}
                 </div>
               </div>
-              <div
-                className="w-1.5 h-1.5 rounded-full shrink-0"
-                style={{ background: skill.enabled ? '#10b981' : '#3f3f46' }}
-              />
+              <div className="w-1.5 h-1.5 rounded-full shrink-0 bg-emerald-400" />
             </div>
           ))}
         </div>
@@ -97,13 +94,7 @@ export default function AppMockup() {
                 <span className="text-[11px]" style={{ color: '#52525b' }}>{selected.agent}</span>
               </div>
             </div>
-            {/* Toggle */}
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-[11px]" style={{ color: '#52525b' }}>Enabled</span>
-              <div className="w-8 h-4 rounded-full relative" style={{ background: '#10b981' }}>
-                <div className="w-3 h-3 bg-white rounded-full absolute right-0.5 top-0.5" />
-              </div>
-            </div>
+            <span className="text-[10px] rounded-full border border-[#27272a] px-2 py-1 text-[#71717a]">v1.0</span>
           </div>
 
           {/* Description */}

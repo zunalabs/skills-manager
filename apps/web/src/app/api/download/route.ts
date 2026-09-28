@@ -10,18 +10,22 @@ export async function GET(req: NextRequest) {
   const url = FILES[platform]
   if (!url) return NextResponse.json({ error: 'Unknown platform' }, { status: 400 })
 
-  // Log to Discord (fire and forget)
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL
   if (webhookUrl) {
-    const country = req.headers.get('x-vercel-ip-country') ?? '?'
-    const ua = req.headers.get('user-agent') ?? '?'
-    fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        content: `⬇️ **Download** · \`${platform}\` · ${country} · \`${ua.slice(0, 80)}\``,
-      }),
-    }).catch(() => {})
+    const country = req.headers.get('x-vercel-ip-country') ?? 'unknown'
+    try {
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: `⬇️ **Download** · \`${platform}\` · country: \`${country}\``,
+          allowed_mentions: { parse: [] },
+        }),
+        signal: AbortSignal.timeout(2500),
+      })
+    } catch {
+      // Analytics must never prevent the download redirect.
+    }
   }
 
   return NextResponse.redirect(url, { status: 302 })

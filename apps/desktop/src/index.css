@@ -553,6 +553,7 @@ html.light .app-switch > span { background: #fff !important; }
 .window-controls button { width: 46px; display: grid; place-items: center; color: var(--muted); background: transparent; border: 0; }
 .window-controls button:hover { color: var(--ink); background: var(--hover); }
 .window-controls button.close:hover { color: #fff; background: #c42b1c; }
+.platform-darwin .window-menu { padding-left: 76px; }
 
 .app-layout { flex: 1; display: flex; width: 100%; min-height: 0; overflow: hidden; background: var(--canvas); }
 .app-stage { min-width: 0; flex: 1; display: flex; flex-direction: column; margin: 8px 8px 8px 0; overflow: hidden; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 8px 28px color-mix(in srgb, var(--shadow) 72%, transparent); }

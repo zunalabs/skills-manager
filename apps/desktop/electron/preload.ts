@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
 contextBridge.exposeInMainWorld('skillsAPI', {
+  platform: process.platform,
   windowControl: (action: 'minimize' | 'maximize' | 'close') => ipcRenderer.invoke('window:control', action),
   editAction: (action: 'undo' | 'redo' | 'cut' | 'copy' | 'paste' | 'selectAll') => ipcRenderer.invoke('window:edit', action),
   scanAll: () => ipcRenderer.invoke('skills:scanAll'),

@@ -290,6 +290,7 @@ let win: BrowserWindow | null = null
 
 function createWindow() {
   const iconPath = path.join(__dirname, '../build/icon.png')
+  const isMac = process.platform === 'darwin'
   win = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -302,8 +303,9 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
     },
-    titleBarStyle: 'hidden',
-    frame: false,
+    titleBarStyle: isMac ? 'hiddenInset' : 'hidden',
+    trafficLightPosition: isMac ? { x: 13, y: 12 } : undefined,
+    frame: isMac,
     show: false,
   })
 

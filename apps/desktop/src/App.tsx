@@ -53,6 +53,7 @@ export default function App() {
     const root = document.documentElement
     root.classList.remove('dark', 'light')
     root.classList.add(settings.theme)
+    root.classList.add(`platform-${window.skillsAPI.platform}`)
   }, [settings.theme])
 
   const handleSettingsChange = (s: AppSettings) => {

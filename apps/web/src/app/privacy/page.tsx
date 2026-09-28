@@ -21,6 +21,7 @@ export default function PrivacyPage() {
       <section>
         <h2>Website analytics</h2>
         <p>The website uses Vercel Web Analytics for aggregate traffic information such as page views, referrers, approximate region, browser, and device type. Vercel Analytics does not use third-party cookies and does not give us a profile that identifies you across websites.</p>
+        <p className="mt-3">When you use a download button, we record the selected operating system and the country code supplied by our hosting provider. The event is delivered to our private Discord workspace. We do not include the download request’s IP address, browser string, email, or a persistent user identifier in that event.</p>
       </section>
       <section>
         <h2>Desktop analytics</h2>

@@ -25,11 +25,15 @@ const items = [
   },
   {
     q: 'Is it free?',
-    a: 'Yes. Skills Manager is fully open source under the MIT license. No accounts, no telemetry, no paywalls — ever.',
+    a: 'Yes. Skills Manager is open source under the MIT license and does not require an account. Sponsorship is optional. The website uses anonymous aggregate analytics, while desktop usage analytics are currently off.',
   },
   {
     q: 'Which agents are supported?',
-    a: 'Currently: Claude Code, Cursor, Gemini CLI, Windsurf, GitHub Copilot, Goose, OpenAI Codex, OpenCode, Kilo Code, Trae, and Antigravity. New agents are added as they gain traction — contributions welcome.',
+    a: 'Currently: Claude Code, Cursor, Gemini CLI, Antigravity CLI, Windsurf, Devin Desktop, GitHub Copilot, Goose, OpenAI Codex, OpenCode, Kilo Code, and Trae. Current and compatible legacy skill locations are detected automatically.',
+  },
+  {
+    q: 'Does it work on macOS?',
+    a: 'The app is being prepared for macOS. A public Mac download will follow after the build is signed and notarized for Apple Gatekeeper. Windows and Linux are available now.',
   },
 ]
 

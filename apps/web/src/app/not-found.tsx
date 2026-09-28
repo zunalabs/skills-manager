@@ -134,7 +134,7 @@ export default function NotFound() {
         </p>
         <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3">
           This page went to{' '}
-          <code className="text-violet-400 font-mono text-xl sm:text-2xl">.disabled/</code>
+          <code className="text-white font-mono text-xl sm:text-2xl">skill-not-found/</code>
         </h1>
         <p className="text-[#858585] text-sm mb-10 max-w-sm leading-relaxed">
           The page you&apos;re looking for doesn&apos;t exist. Maybe it was deleted, or
