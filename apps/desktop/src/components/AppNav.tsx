@@ -1,4 +1,5 @@
 import { Compass, Heart, Library, MessageSquare, Plus, Settings2 } from 'lucide-react'
+import { APP_VERSION } from '../lib/appVersion'
 
 interface AppNavProps {
   view: 'skills' | 'discover'
@@ -39,7 +40,7 @@ export default function AppNav({
         <button onClick={onFeedback}><MessageSquare size={15} /><span>Send feedback</span></button>
         <button onClick={() => openUrl('https://github.com/sponsors/evergreenx')}><Heart size={15} /><span>Sponsor</span></button>
         <button className="nav-creator" onClick={() => openUrl('https://idoevergreen.me')}>
-          <span>Built by ido evergreen</span><small>v0.2.0</small>
+          <span>Built by ido evergreen</span><small>v{APP_VERSION}</small>
         </button>
       </div>
     </aside>

@@ -19,6 +19,7 @@
     "electron:build": "vite build && electron-builder",
     "test": "vitest run",
     "test:watch": "vitest",
+    "pretest:e2e": "vite build",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

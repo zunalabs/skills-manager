@@ -6,7 +6,24 @@ on:
       - 'v*'
 
 jobs:
+  validate-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify tag, package, and release notes agree
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs')
+          const pkg = require('./apps/desktop/package.json')
+          const tag = process.env.GITHUB_REF_NAME
+          const notes = fs.readFileSync('RELEASE_NOTES.md', 'utf8')
+          if (tag !== `v${pkg.version}`) throw new Error(`Tag ${tag} does not match package version ${pkg.version}`)
+          if (!notes.includes(`## ${pkg.version}`)) throw new Error(`RELEASE_NOTES.md has no ${pkg.version} heading`)
+          NODE
+
   build-windows:
+    needs: validate-version
     runs-on: windows-latest
     permissions:
       contents: write
@@ -33,6 +50,7 @@ jobs:
           path: apps/desktop/release/*.exe
 
   build-linux:
+    needs: validate-version
     runs-on: ubuntu-latest
     permissions:
       contents: write

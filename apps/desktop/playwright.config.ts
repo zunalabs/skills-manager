@@ -1,6 +1,4 @@
 import { defineConfig } from '@playwright/test'
-import path from 'path'
-
 export default defineConfig({
   testDir: './e2e',
   timeout: 30000,
@@ -13,5 +11,6 @@ export default defineConfig({
   reporter: 'list',
   use: {
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
   },
 })

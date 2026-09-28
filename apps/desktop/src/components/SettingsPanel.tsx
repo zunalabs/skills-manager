@@ -2,6 +2,7 @@ import * as RadixDialog from '@radix-ui/react-dialog'
 import { ExternalLink, Moon, Sun, X } from 'lucide-react'
 import { AppSettings } from '../types'
 import { Switch } from './ui/Switch'
+import { APP_VERSION } from '../lib/appVersion'
 
 interface SettingsPanelProps {
   settings: AppSettings
@@ -104,7 +105,7 @@ export default function SettingsPanel({ settings, onChange, onClose }: SettingsP
 
           <section>
             <p className="settings-section-title">About</p>
-            <div className="settings-about"><span>Skills Manager</span><span>v0.2.0</span></div>
+            <div className="settings-about"><span>Skills Manager</span><span>v{APP_VERSION}</span></div>
             <button className="settings-creator" onClick={() => window.skillsAPI.openExternal('https://idoevergreen.me')}>
               Built by ido evergreen <ExternalLink size={11} />
             </button>

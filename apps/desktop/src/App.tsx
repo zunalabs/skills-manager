@@ -9,7 +9,6 @@ import SettingsPanel from './components/SettingsPanel'
 import AppNav from './components/AppNav'
 import TitleBar from './components/TitleBar'
 import FeedbackModal from './components/FeedbackModal'
-import TelemetryNotice from './components/TelemetryNotice'
 import { ToolIcon } from './components/ToolIcon'
 import { categorizeSkills } from './lib/categorize'
 import { Toaster, toast } from 'sonner'
@@ -49,9 +48,6 @@ export default function App() {
     () => new Set(JSON.parse(localStorage.getItem('skills-manager-favourites') ?? '[]'))
   )
   const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [showTelemetryNotice, setShowTelemetryNotice] = useState(
-    () => localStorage.getItem('skills-manager-telemetry-notice-seen') !== 'true'
-  )
 
   // Apply theme class to <html>
   useEffect(() => {
@@ -249,14 +245,6 @@ export default function App() {
       {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
       </section>
       </div>
-      {showTelemetryNotice && (
-        <TelemetryNotice
-          onDismiss={() => {
-            localStorage.setItem('skills-manager-telemetry-notice-seen', 'true')
-            setShowTelemetryNotice(false)
-          }}
-        />
-      )}
       <Toaster
         richColors
         closeButton

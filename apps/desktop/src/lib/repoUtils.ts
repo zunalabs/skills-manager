@@ -8,10 +8,11 @@
  * Handles: full URL, full URL with /tree/main/, owner/repo, owner/repo/subpath
  */
 export function toRepoPath(github: string): string {
-  let s = github.trim().replace(/\/$/, '')
+  let s = github.trim().split(/[?#]/, 1)[0].replace(/\/+$/, '')
   s = s.replace(/^https?:\/\/github\.com\//, '')
   s = s.replace(/\/(?:tree|blob)\/[^/]+\//, '/')
   s = s.replace(/\/(?:tree|blob)\/[^/]+$/, '')
+  s = s.replace(/\.git$/, '')
   return s
 }
 
@@ -29,7 +30,7 @@ export function toGithubUrl(repoPath: string): string {
  * Returns null if the path has only 2 parts (owner/repo).
  */
 export function inferSkillDirName(repo: string): string | null {
-  const parts = repo.trim().split('/')
+  const parts = toRepoPath(repo).split('/')
   return parts.length > 2 ? parts[parts.length - 1].toLowerCase() : null
 }
 
@@ -47,6 +48,10 @@ export function computeSkillsBasePath(skillMdPaths: string[], repoName: string):
   isSingleSkill: boolean
   skillDirNames: string[]
 } {
+  if (skillMdPaths.length === 0) {
+    return { skillsBasePath: '', isSingleSkill: false, skillDirNames: [] }
+  }
+
   const skillDirPaths = skillMdPaths.map((p) => p.split('/').slice(0, -1).join('/'))
   const isSingleSkill = skillDirPaths.length === 1 && skillDirPaths[0] === ''
 

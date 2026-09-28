@@ -12,7 +12,7 @@
 - Replaced the operating system menu and title frame with an integrated application menu and window controls.
 - Added in-app feedback with an optional rating and clear data disclosure.
 - Added direct project sponsorship and creator links.
-- Added anonymous Aptabase product analytics with a first-run notice and a strict event/property allowlist.
+- Added anonymous Aptabase product analytics with a strict event/property allowlist.
 - Added Privacy and Terms pages for the website and desktop Help menu.
 - Framed the working area as a rounded surface beside the main navigation.
 - Removed the universal enable/disable switch because standalone Agent Skills do not share one portable disabled state.

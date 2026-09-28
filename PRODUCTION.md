@@ -20,7 +20,7 @@ Vercel Web Analytics is enabled by the existing `@vercel/analytics` integration 
 
 ### Desktop
 
-Use Aptabase for privacy-focused desktop events. Anonymous telemetry is included in the desktop app and explained on first run.
+Use Aptabase for privacy-focused desktop events. Anonymous telemetry is included in the desktop app and documented in the Privacy page.
 
 Approved event schema:
 
