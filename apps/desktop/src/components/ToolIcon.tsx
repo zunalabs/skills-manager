@@ -3,7 +3,7 @@ export function ToolIcon({ tool, size = 24 }: { tool: string; size?: number }) {
   if (tool === 'Claude Code') {
     return <ClaudeCodeIcon size={size} />
   }
-  if (tool === 'Antigravity') {
+  if (tool === 'Antigravity' || tool === 'Antigravity CLI') {
     return <AntigravityIcon size={size} />
   }
   if (tool === 'Goose') {
@@ -28,7 +28,7 @@ export function ToolIcon({ tool, size = 24 }: { tool: string; size?: number }) {
     return <GeminiCLIIcon size={size} />
   }
 
-  if (tool === 'Windsurf') {
+  if (tool === 'Windsurf' || tool === 'Devin Desktop') {
     return <WindsurfIcon size={size} />
   }
 
@@ -231,4 +231,3 @@ function GeminiCLIIcon({ size }: { size: number }) {
     </svg>
   )
 }
-

@@ -168,7 +168,14 @@ export default function Home() {
         style={{ background: 'rgba(10,9,8,0.85)' }}
       >
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          <span className="font-heading text-base tracking-tight">Skills Manager</span>
+          <Image
+            src="/brand/svg/lockup-on-dark.svg"
+            alt="Skills Manager"
+            width={327}
+            height={72}
+            priority
+            className="h-7 w-auto"
+          />
           <nav className="flex items-center gap-5">
             <a
               href="https://discord.gg/3JhATJGs"
@@ -613,20 +620,34 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-[rgba(255,255,255,0.06)] py-8">
         <div className="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <span className="font-heading text-base text-white">Skills Manager</span>
+          <div className="flex items-center">
+            <Image
+              src="/brand/svg/lockup-on-dark.svg"
+              alt="Skills Manager"
+              width={327}
+              height={72}
+              className="h-7 w-auto"
+            />
             <span className="text-sm text-[#858585] ml-2">by{' '}
               <a
-                href="https://github.com/orgs/zunalabs/"
+                href="https://idoevergreen.me"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:text-white transition-colors"
               >
-                Zunalabs
+                ido evergreen
               </a>
             </span>
           </div>
           <div className="flex items-center gap-6">
+            <a
+              href="https://github.com/sponsors/evergreenx"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-[#858585] hover:text-white transition-colors"
+            >
+              Sponsor
+            </a>
             <a
               href="https://discord.gg/3JhATJGs"
               target="_blank"
@@ -643,6 +664,8 @@ export default function Home() {
             >
               GitHub
             </a>
+            <a href="/privacy" className="text-sm text-[#858585] hover:text-white transition-colors">Privacy</a>
+            <a href="/terms" className="text-sm text-[#858585] hover:text-white transition-colors">Terms</a>
 <span className="text-sm text-[#858585]">© {new Date().getFullYear()}</span>
           </div>
         </div>

@@ -1,9 +1,9 @@
 {
   "name": "skills-manager-desktop",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Desktop app for managing AI agent skills",
   "author": {
-    "name": "Zunalabs",
+    "name": "ido evergreen",
     "email": "hello@zunalabs.com"
   },
   "homepage": "https://sm.idoevergreen.me",
@@ -70,7 +70,7 @@
   "build": {
     "appId": "com.zunalabs.skills-manager",
     "productName": "Skills Manager",
-    "copyright": "Copyright © 2025 Zunalabs",
+    "copyright": "Copyright © 2026 ido evergreen",
     "icon": "build/icon.png",
     "directories": {
       "output": "release"
@@ -131,7 +131,7 @@
       ],
       "category": "Development",
       "artifactName": "Skills-Manager-linux-${arch}.${ext}",
-      "maintainer": "Zunalabs <hello@zunalabs.com>"
+      "maintainer": "ido evergreen <hello@zunalabs.com>"
     },
     "publish": {
       "provider": "github",

@@ -20,6 +20,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  icons: {
+    icon: [{ url: '/brand/favicon.png', type: 'image/png', sizes: '128x128' }],
+    apple: '/brand/app-icon.png',
+  },
   openGraph: {
     title: 'Skills Manager — Universal AI Agent Skills',
     description: 'Universal AI agent skills manager for Claude Code, Cursor, Copilot, and more.',

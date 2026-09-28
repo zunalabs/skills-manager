@@ -12,7 +12,7 @@ export function Switch({ checked, onCheckedChange, id }: SwitchProps) {
       id={id}
       checked={checked}
       onCheckedChange={onCheckedChange}
-      className="flex-shrink-0 w-8 rounded-full relative transition-colors outline-none cursor-pointer data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-zinc-700"
+      className="app-switch flex-shrink-0 w-8 rounded-full relative transition-colors outline-none cursor-pointer"
       style={{ height: '18px', width: '32px' }}
     >
       <RadixSwitch.Thumb

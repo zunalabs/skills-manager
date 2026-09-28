@@ -1,13 +1,13 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
 contextBridge.exposeInMainWorld('skillsAPI', {
+  windowControl: (action: 'minimize' | 'maximize' | 'close') => ipcRenderer.invoke('window:control', action),
+  editAction: (action: 'undo' | 'redo' | 'cut' | 'copy' | 'paste' | 'selectAll') => ipcRenderer.invoke('window:edit', action),
   scanAll: () => ipcRenderer.invoke('skills:scanAll'),
   getReadme: (skillPath: string) => ipcRenderer.invoke('skills:getReadme', skillPath),
   listTemplates: (skillPath: string) => ipcRenderer.invoke('skills:listTemplates', skillPath),
   readTemplate: (skillPath: string, templateName: string) =>
     ipcRenderer.invoke('skills:readTemplate', skillPath, templateName),
-  toggle: (skillPath: string, enabled: boolean) =>
-    ipcRenderer.invoke('skills:toggle', skillPath, enabled),
   delete: (skillPath: string) => ipcRenderer.invoke('skills:delete', skillPath),
   listAgentPaths: () => ipcRenderer.invoke('skills:listAgentPaths'),
   copyToAgent: (skillPath: string, targetAgent: string) =>
@@ -21,6 +21,8 @@ contextBridge.exposeInMainWorld('skillsAPI', {
   },
   openInExplorer: (skillPath: string) => ipcRenderer.invoke('skills:openInExplorer', skillPath),
   openExternal: (url: string) => ipcRenderer.invoke('skills:openExternal', url),
+  submitFeedback: (feedback: { category: 'bug' | 'idea' | 'general'; rating?: number; message: string; email?: string }) =>
+    ipcRenderer.invoke('feedback:submit', feedback),
   searchMarketplace: (query: string, page: number) => ipcRenderer.invoke('skills:searchMarketplace', query, page),
   getGithubToken: () => ipcRenderer.invoke('skills:getGithubToken'),
   setGithubToken: (token: string) => ipcRenderer.invoke('skills:setGithubToken', token),

@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Skill } from '../types'
-import { FolderOpen, Code, FileText, ChevronRight, Trash2, Copy } from 'lucide-react'
+import { FolderOpen, Code, FileText, ChevronRight, Trash2, Copy, Star } from 'lucide-react'
 import { ToolIcon } from './ToolIcon'
-import StarIcon from '@mui/icons-material/Star'
-import StarOutlinedIcon from '@mui/icons-material/StarOutlined'
 import { toast } from 'sonner'
 
 interface SkillDetailProps {
   skill: Skill
-  onToggle: (s: Skill) => void
   onDelete: (s: Skill) => void
   isFavourite: boolean
   onToggleFavourite: () => void
@@ -16,7 +13,7 @@ interface SkillDetailProps {
   showVersionBadge?: boolean
 }
 
-export default function SkillDetail({ skill, onToggle, onDelete, isFavourite, onToggleFavourite, requireConfirmDelete = true, showVersionBadge = true }: SkillDetailProps) {
+export default function SkillDetail({ skill, onDelete, isFavourite, onToggleFavourite, requireConfirmDelete = true, showVersionBadge = true }: SkillDetailProps) {
   const [readme, setReadme] = useState('')
   const [templates, setTemplates] = useState<string[]>([])
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null)
@@ -66,9 +63,9 @@ export default function SkillDetail({ skill, onToggle, onDelete, isFavourite, on
   const readmeBody = readme ? readme.replace(/^---[\s\S]*?---\n?/, '').trim() : ''
 
   return (
-    <div className="flex flex-col h-full bg-zinc-950">
+    <div className="skill-detail flex flex-col h-full bg-zinc-950">
       {/* Header */}
-      <div className="flex-shrink-0 border-b border-zinc-800 px-5 py-4">
+      <div className="detail-hero flex-shrink-0 border-b border-zinc-800 px-5 py-4">
         <div className="flex items-start gap-3">
           {/* Icon */}
           <div className="w-9 h-9 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -107,15 +104,12 @@ export default function SkillDetail({ skill, onToggle, onDelete, isFavourite, on
               onClick={onToggleFavourite}
               className={`w-7 h-7 rounded border transition-colors flex items-center justify-center ${
                 isFavourite
-                  ? 'bg-amber-500/10 border-amber-500/20 text-amber-400 hover:bg-amber-500/15'
-                  : 'border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-500 hover:text-amber-400'
+                  ? 'bg-white/10 border-white/20 text-white hover:bg-white/15'
+                  : 'border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-500 hover:text-zinc-100'
               }`}
               title={isFavourite ? 'Remove from starred' : 'Add to starred'}
             >
-              {isFavourite
-                ? <StarIcon sx={{ fontSize: 15 }} />
-                : <StarOutlinedIcon sx={{ fontSize: 15 }} />
-              }
+              <Star className="w-3.5 h-3.5" fill={isFavourite ? 'currentColor' : 'none'} />
             </button>
 
             <button
@@ -137,7 +131,7 @@ export default function SkillDetail({ skill, onToggle, onDelete, isFavourite, on
               }}
               className={`w-7 h-7 rounded border transition-colors flex items-center justify-center ${
                 showCopyPanel
-                  ? 'bg-violet-600/10 border-violet-600/30 text-violet-400'
+                  ? 'bg-white/10 border-white/30 text-zinc-100'
                   : 'border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-500 hover:text-zinc-300'
               }`}
               title="Copy to another agent"
@@ -196,7 +190,7 @@ export default function SkillDetail({ skill, onToggle, onDelete, isFavourite, on
         {skill.tags.length > 0 && (
           <div className="flex items-center gap-1.5 mt-3 flex-wrap">
             {skill.tags.map((tag) => (
-              <span key={tag} className="text-[10px] font-medium px-2 py-0.5 rounded bg-violet-600/10 text-violet-400 border border-violet-600/20">
+              <span key={tag} className="text-[10px] font-medium px-2 py-0.5 rounded bg-white/5 text-zinc-300 border border-white/10">
                 {tag}
               </span>
             ))}
@@ -332,7 +326,7 @@ function TabButton({ active, onClick, icon, label, count }: {
     <button
       onClick={onClick}
       className={`flex items-center gap-1.5 px-1 py-2.5 text-xs border-b-2 mr-5 transition-colors font-medium ${
-        active ? 'border-violet-500 text-zinc-100' : 'border-transparent text-zinc-500 hover:text-zinc-300'
+        active ? 'border-white text-zinc-100' : 'border-transparent text-zinc-500 hover:text-zinc-300'
       }`}
     >
       {icon}

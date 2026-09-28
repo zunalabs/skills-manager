@@ -14,8 +14,9 @@ A universal desktop app for managing AI agent skills across all major coding age
 - Claude Code
 - Cursor
 - Gemini CLI
-- Antigravity
+- Antigravity CLI
 - Windsurf
+- Devin Desktop
 - GitHub Copilot
 - Goose
 - Codex
@@ -26,7 +27,6 @@ A universal desktop app for managing AI agent skills across all major coding age
 ## Features
 
 - Browse and manage skills across all installed agents
-- Enable / disable skills
 - Install skills from any GitHub repo
 - Copy skills between agents
 - Delete skills

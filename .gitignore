@@ -8,4 +8,5 @@ out
 *.local
 .env
 .DS_Store
+*.tsbuildinfo
 apps/video/

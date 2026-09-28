@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Download, ArrowLeft, Check } from 'lucide-react'
+import { Download, ArrowLeft, Check, Github } from 'lucide-react'
 import * as RadixDialog from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import { ToolIcon } from './ToolIcon'
@@ -124,31 +124,23 @@ export default function InstallModal({ onClose, onInstalled, defaultRepo }: Inst
   return (
     <RadixDialog.Root open onOpenChange={(open) => !open && onClose()}>
       <RadixDialog.Portal>
-        <RadixDialog.Overlay className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" />
+        <RadixDialog.Overlay className="app-overlay fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" />
         <RadixDialog.Content
           onInteractOutside={(e) => e.preventDefault()}
-          className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden focus:outline-none"
+          className="app-dialog install-dialog fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden focus:outline-none"
         >
-        {/* Step indicator */}
-        <div className="flex items-center gap-1 px-5 py-2 border-b border-zinc-800">
+        <div className="install-steps" aria-label="Installation progress">
           {(['input', 'select', 'installing'] as Stage[]).map((s, i) => (
             <React.Fragment key={s}>
-              <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full transition-colors ${
-                stage === s
-                  ? 'bg-black text-white border border-zinc-700'
-                  : ['installing'].includes(stage) && i < ['input','select','installing'].indexOf(stage)
-                    ? 'bg-zinc-700 text-zinc-400'
-                    : 'text-zinc-600'
-              }`}>
-                {i + 1}. {s === 'input' ? 'Repo' : s === 'select' ? 'Select' : 'Install'}
+              <span className={`${stage === s ? 'active' : ''} ${i < ['input','select','installing'].indexOf(stage) ? 'complete' : ''}`}>
+                <i>{i + 1}</i>{s === 'input' ? 'Repository' : s === 'select' ? 'Choose' : 'Install'}
               </span>
-              {i < 2 && <span className="text-zinc-800 text-[10px]">›</span>}
+              {i < 2 && <b />}
             </React.Fragment>
           ))}
         </div>
 
-        {/* Header */}
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-zinc-800">
+        <div className="install-header">
           {stage === 'select' && (
             <button
               onClick={() => setStage('input')}
@@ -157,11 +149,12 @@ export default function InstallModal({ onClose, onInstalled, defaultRepo }: Inst
               <ArrowLeft className="w-3.5 h-3.5" />
             </button>
           )}
-          <div className="w-7 h-7 rounded-lg bg-violet-600/10 border border-violet-600/20 flex items-center justify-center flex-shrink-0">
-            <Download className="w-3.5 h-3.5 text-violet-400" />
+          <div className="install-github-icon">
+            <Github size={17} />
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-sm font-semibold text-zinc-100">Install from GitHub</h2>
+            {stage === 'input' && <p className="text-[11px] text-zinc-500">Add skills from a public repository.</p>}
             {stage === 'select' && (
               <p className="text-[11px] text-zinc-500 truncate">{repo}</p>
             )}
@@ -204,7 +197,7 @@ export default function InstallModal({ onClose, onInstalled, defaultRepo }: Inst
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wide">
-                    Skills <span className="text-violet-400 normal-case font-normal">{selectedSkills.size}/{discoveredSkills.length}</span>
+                    Skills <span className="selection-count normal-case font-normal">{selectedSkills.size}/{discoveredSkills.length}</span>
                   </label>
                   <button
                     onClick={() => setSelectedSkills(
@@ -226,12 +219,12 @@ export default function InstallModal({ onClose, onInstalled, defaultRepo }: Inst
                         onClick={() => toggleSkill(skill.dirName)}
                         className={`w-full flex items-start gap-2.5 px-3 py-2 rounded border text-left transition-colors ${
                           checked
-                            ? 'bg-violet-600/10 border-violet-600/20'
+                            ? 'install-option-selected'
                             : 'bg-zinc-800/50 border-zinc-700/50 hover:bg-zinc-800'
                         }`}
                       >
                         <span className={`flex-shrink-0 w-3.5 h-3.5 rounded border mt-0.5 flex items-center justify-center transition-colors ${
-                          checked ? 'bg-violet-600 border-violet-600' : 'border-zinc-600'
+                          checked ? 'install-check-selected' : 'border-zinc-600'
                         }`}>
                           {checked && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
                         </span>
@@ -255,7 +248,7 @@ export default function InstallModal({ onClose, onInstalled, defaultRepo }: Inst
                 <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wide block mb-2">
                   Install into
                   {targetAgents.size > 0 && (
-                    <span className="ml-1.5 text-violet-400 normal-case font-normal">{targetAgents.size} selected</span>
+                    <span className="ml-1.5 selection-count normal-case font-normal">{targetAgents.size} selected</span>
                   )}
                 </label>
                 {Object.keys(agentPaths).length === 0 ? (
@@ -268,7 +261,7 @@ export default function InstallModal({ onClose, onInstalled, defaultRepo }: Inst
                         onClick={() => toggleAgent(agent)}
                         className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded border text-[11px] transition-colors text-left ${
                           targetAgents.has(agent)
-                            ? 'bg-violet-600/10 border-violet-600/25 text-zinc-100'
+                            ? 'install-option-selected text-zinc-100'
                             : 'bg-zinc-800/50 border-zinc-700/50 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
                         }`}
                       >
@@ -293,7 +286,7 @@ export default function InstallModal({ onClose, onInstalled, defaultRepo }: Inst
                   <p key={i} className="text-[11px] text-zinc-500 leading-snug">{msg}</p>
                 ))}
                 {!result && (
-                  <p className="text-[11px] text-violet-400 animate-pulse">Working...</p>
+                  <p className="text-[11px] install-working animate-pulse">Working...</p>
                 )}
               </div>
               {result && (

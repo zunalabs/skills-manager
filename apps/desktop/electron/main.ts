@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import path from 'path'
 import fs from 'fs'
@@ -37,19 +37,34 @@ function getGithubToken(): string {
   return process.env.GITHUB_TOKEN || readConfig().githubToken || ''
 }
 
-// All supported tool skill paths
+// Primary install paths. Legacy locations are scanned below so upgrades do not
+// hide skills users already have on disk.
 const TOOL_PATHS: Record<string, string> = {
   'Claude Code': path.join(home, '.claude', 'skills'),
   'Cursor': path.join(home, '.cursor', 'skills'),
   'Gemini CLI': path.join(home, '.gemini', 'skills'),
-  'Antigravity': path.join(home, '.gemini', 'antigravity', 'skills'),
+  'Antigravity CLI': path.join(home, '.gemini', 'antigravity-cli', 'skills'),
   'Windsurf': path.join(home, '.codeium', 'windsurf', 'skills'),
+  'Devin Desktop': path.join(configHome, 'devin', 'skills'),
   'OpenCode': path.join(configHome, 'opencode', 'skills'),
   'Goose': path.join(configHome, 'goose', 'skills'),
-  'Codex': path.join(home, '.codex', 'skills'),
+  'Codex': path.join(home, '.agents', 'skills'),
   'GitHub Copilot': path.join(home, '.copilot', 'skills'),
-  'Kilo Code': path.join(home, '.kilocode', 'skills'),
+  'Kilo Code': path.join(home, '.kilo', 'skills'),
   'Trae': path.join(home, '.trae', 'skills'),
+}
+
+const TOOL_LEGACY_PATHS: Record<string, string[]> = {
+  'Antigravity CLI': [
+    path.join(home, '.gemini', 'config', 'skills'),
+    path.join(home, '.gemini', 'antigravity', 'skills'),
+  ],
+  Codex: [path.join(home, '.codex', 'skills')],
+  'Kilo Code': [path.join(home, '.kilocode', 'skills')],
+}
+
+function getToolPaths(toolName: string): string[] {
+  return [TOOL_PATHS[toolName], ...(TOOL_LEGACY_PATHS[toolName] ?? [])].filter(Boolean)
 }
 
 interface SkillMeta {
@@ -76,7 +91,6 @@ interface Skill {
   toolPath: string
   hasTemplates: boolean
   templateCount: number
-  enabled: boolean
 }
 
 interface ToolSummary {
@@ -106,7 +120,7 @@ function getDisabledPath(toolPath: string): string {
   return toolPath + '_disabled'
 }
 
-function readSkillDir(toolName: string, toolPath: string, skillDirName: string, isEnabled: boolean): Skill {
+function readSkillDir(toolName: string, toolPath: string, skillDirName: string): Skill {
   const skillPath = path.join(toolPath, skillDirName)
   const meta = parseSkillMeta(skillPath)
 
@@ -139,23 +153,22 @@ function readSkillDir(toolName: string, toolPath: string, skillDirName: string, 
     toolPath,
     hasTemplates,
     templateCount,
-    enabled: isEnabled,
   }
 }
 
-function scanDir(toolName: string, toolPath: string, isEnabled: boolean): Skill[] {
+function scanDir(toolName: string, toolPath: string): Skill[] {
   if (!fs.existsSync(toolPath)) return []
   try {
     const entries = fs.readdirSync(toolPath).filter((entry) => {
       const full = path.join(toolPath, entry)
       try {
         const stats = fs.statSync(full)
-        return stats.isDirectory()
+        return stats.isDirectory() && !entry.startsWith('.')
       } catch {
         return false
       }
     })
-    return entries.map((dir) => readSkillDir(toolName, toolPath, dir, isEnabled))
+    return entries.map((dir) => readSkillDir(toolName, toolPath, dir))
   } catch {
     return []
   }
@@ -163,33 +176,53 @@ function scanDir(toolName: string, toolPath: string, isEnabled: boolean): Skill[
 
 function scanAllTools(): ToolSummary[] {
   return Object.entries(TOOL_PATHS).map(([toolName, toolPath]) => {
-    const exists = fs.existsSync(toolPath)
-    const disabledPath = getDisabledPath(toolPath)
+    const toolPaths = getToolPaths(toolName)
+    let exists = toolPaths.some((candidate) => fs.existsSync(candidate))
+    const discovered = new Map<string, Skill>()
 
-    // Migration: Move old dot-prefixed skill folders to the _disabled directory
-    if (exists) {
-      try {
-        const items = fs.readdirSync(toolPath)
-        for (const item of items) {
-          if (item.startsWith('.') && item !== '.' && item !== '..') {
-            const oldPath = path.join(toolPath, item)
-            const cleanName = item.slice(1)
-            const newPath = path.join(disabledPath, cleanName)
-            if (!fs.existsSync(disabledPath)) fs.mkdirSync(disabledPath, { recursive: true })
-            if (!fs.existsSync(newPath)) {
-              console.log(`Migrating legacy disabled skill: ${item} -> ${newPath}`)
-              fs.renameSync(oldPath, newPath)
+    for (const sourcePath of toolPaths) {
+      const sourceExists = fs.existsSync(sourcePath)
+      const disabledPath = getDisabledPath(sourcePath)
+
+      // Restore skills hidden by older Skills Manager releases. The current
+      // product treats every discovered skill as available.
+      if (sourceExists) {
+        try {
+          for (const item of fs.readdirSync(sourcePath)) {
+            const oldPath = path.join(sourcePath, item)
+            if (item.startsWith('.') && fs.existsSync(path.join(oldPath, 'SKILL.md'))) {
+              const restoredPath = path.join(sourcePath, item.slice(1))
+              if (!fs.existsSync(restoredPath)) fs.renameSync(oldPath, restoredPath)
             }
           }
+        } catch (err) {
+          console.error(`Skill migration error for ${toolName}:`, err)
         }
-      } catch (err) {
-        console.error(`Migration error for ${toolName}:`, err)
+      }
+
+      if (fs.existsSync(disabledPath)) {
+        try {
+          if (!fs.existsSync(sourcePath)) fs.mkdirSync(sourcePath, { recursive: true })
+          for (const item of fs.readdirSync(disabledPath)) {
+            const oldPath = path.join(disabledPath, item)
+            const restoredPath = path.join(sourcePath, item)
+            if (fs.existsSync(path.join(oldPath, 'SKILL.md')) && !fs.existsSync(restoredPath)) {
+              fs.renameSync(oldPath, restoredPath)
+            }
+          }
+        } catch (err) {
+          console.error(`Could not restore disabled skills for ${toolName}:`, err)
+        }
+      }
+
+      for (const skill of scanDir(toolName, sourcePath)) {
+        const key = skill.name.toLowerCase()
+        if (!discovered.has(key)) discovered.set(key, skill)
       }
     }
 
-    const activeSkills = scanDir(toolName, toolPath, true)
-    const disabledSkills = scanDir(toolName, disabledPath, false)
-    const allSkills = [...activeSkills, ...disabledSkills]
+    exists = toolPaths.some((candidate) => fs.existsSync(candidate))
+    const allSkills = [...discovered.values()]
 
     return { 
       tool: toolName, 
@@ -253,80 +286,6 @@ async function deleteSkill(skillPath: string, retries = 5, delay = 200): Promise
   return false
 }
 
-async function renameWithRetry(oldPath: string, newPath: string, retries = 10, delay = 150): Promise<void> {
-  const isWindows = process.platform === 'win32'
-  for (let i = 0; i <= retries; i++) {
-    try {
-      fs.renameSync(oldPath, newPath)
-      return
-    } catch (err: any) {
-      const isLockError = err.code === 'EPERM' || err.code === 'EBUSY' || err.code === 'EACCES'
-      if (isLockError && i < retries && isWindows) {
-        // Wait and retry
-        await new Promise((resolve) => setTimeout(resolve, delay * Math.pow(2, i)))
-        continue
-      }
-      throw err
-    }
-  }
-}
-
-async function toggleSkill(skillPath: string, enabled: boolean): Promise<{ ok: boolean; newPath: string; error?: string }> {
-  try {
-    const parentDir = path.dirname(skillPath)
-    const baseName = path.basename(skillPath)
-    
-    let activePath = ''
-    let disabledPath = ''
-    let toolName = 'the agent'
-    
-    for (const [name, p] of Object.entries(TOOL_PATHS)) {
-      const d = getDisabledPath(p)
-      if (parentDir === p || parentDir === d) {
-        activePath = p
-        disabledPath = d
-        toolName = name
-        break
-      }
-    }
-    
-    if (!activePath) {
-      return { ok: false, newPath: skillPath, error: 'Could not identify agent directory' }
-    }
-    
-    const targetDir = enabled ? activePath : disabledPath
-    const newPath = path.join(targetDir, baseName)
-    
-    if (newPath === skillPath) return { ok: true, newPath }
-    
-    if (fs.existsSync(newPath)) {
-      return { ok: false, newPath: skillPath, error: `Destination already exists at ${newPath}` }
-    }
-
-    if (!fs.existsSync(targetDir)) {
-      fs.mkdirSync(targetDir, { recursive: true })
-    }
-
-    try {
-      await renameWithRetry(skillPath, newPath)
-    } catch (e: any) {
-      if (e.code === 'EPERM' || e.code === 'EBUSY') {
-        return { 
-          ok: false, 
-          newPath: skillPath, 
-          error: `Operation not permitted (locked). Please close any active sessions of ${toolName} (e.g., Claude Code, Goose) and try again.`
-        }
-      }
-      throw e
-    }
-    
-    return { ok: true, newPath }
-  } catch (e) {
-    console.error('toggleSkill error:', e)
-    return { ok: false, newPath: skillPath, error: String(e) }
-  }
-}
-
 let win: BrowserWindow | null = null
 
 function createWindow() {
@@ -343,10 +302,12 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
     },
-    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
-    frame: true,
+    titleBarStyle: 'hidden',
+    frame: false,
     show: false,
   })
+
+  Menu.setApplicationMenu(null)
 
   win.once('ready-to-show', () => win?.show())
 
@@ -358,6 +319,25 @@ function createWindow() {
 }
 
 // IPC handlers
+ipcMain.handle('window:control', (event, action: 'minimize' | 'maximize' | 'close') => {
+  const window = BrowserWindow.fromWebContents(event.sender)
+  if (!window) return false
+  if (action === 'minimize') window.minimize()
+  if (action === 'maximize') window.isMaximized() ? window.unmaximize() : window.maximize()
+  if (action === 'close') window.close()
+  return window.isMaximized()
+})
+
+ipcMain.handle('window:edit', (event, action: 'undo' | 'redo' | 'cut' | 'copy' | 'paste' | 'selectAll') => {
+  const contents = event.sender
+  if (action === 'undo') contents.undo()
+  if (action === 'redo') contents.redo()
+  if (action === 'cut') contents.cut()
+  if (action === 'copy') contents.copy()
+  if (action === 'paste') contents.paste()
+  if (action === 'selectAll') contents.selectAll()
+})
+
 ipcMain.handle('skills:scanAll', () => scanAllTools())
 
 ipcMain.handle('skills:getReadme', (_e, skillPath: string) => readSkillReadme(skillPath))
@@ -368,9 +348,6 @@ ipcMain.handle('skills:readTemplate', (_e, skillPath: string, templateName: stri
   readTemplate(skillPath, templateName)
 )
 
-ipcMain.handle('skills:toggle', (_e, skillPath: string, enabled: boolean) =>
-  toggleSkill(skillPath, enabled)
-)
 
 // Returns the full TOOL_PATHS map so the renderer can display agent options
 function listAgentPaths(): Record<string, string> {
@@ -711,23 +688,56 @@ ipcMain.handle('skills:setGithubToken', (_e, token: string) => {
   writeConfig(config)
 })
 
-ipcMain.handle('skills:searchMarketplace', (_e, query: string, page: number) => {
-  function doGet(url: string): Promise<{ ok: boolean; data?: any; error?: string }> {
+ipcMain.handle('feedback:submit', async (_event, feedback: {
+  category?: string
+  rating?: number
+  message?: string
+  email?: string
+}) => {
+  const message = feedback.message?.trim()
+  if (!message || message.length > 4000) {
+    return { ok: false, error: 'Please enter feedback between 1 and 4,000 characters.' }
+  }
+
+  try {
+    const response = await fetch('https://sm.idoevergreen.me/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        category: ['bug', 'idea', 'general'].includes(feedback.category ?? '') ? feedback.category : 'general',
+        rating: Number.isInteger(feedback.rating) && feedback.rating! >= 1 && feedback.rating! <= 5
+          ? feedback.rating
+          : undefined,
+        message,
+        email: feedback.email?.trim() || undefined,
+        source: 'desktop',
+        appVersion: app.getVersion(),
+        platform: process.platform,
+      }),
+    })
+    if (!response.ok) return { ok: false, error: 'Feedback could not be sent right now.' }
+    return { ok: true }
+  } catch {
+    return { ok: false, error: 'Check your internet connection and try again.' }
+  }
+})
+
+ipcMain.handle('skills:searchMarketplace', async (_e, query: string, page: number) => {
+  function doGet(url: string, headers: Record<string, string>): Promise<{ ok: boolean; data?: any; error?: string }> {
     return new Promise((resolve) => {
-      const req = https.get(url, {
-        headers: {
-          'Accept': 'application/json',
-          'User-Agent': 'skillfish-cli',
-          'Referer': 'https://mcpmarket.com/',
-        }
-      }, (res) => {
+      const req = https.get(url, { headers }, (res) => {
         if ((res.statusCode === 301 || res.statusCode === 302) && res.headers.location) {
-          doGet(res.headers.location).then(resolve)
+          doGet(new URL(res.headers.location, url).toString(), headers).then(resolve)
           return
         }
         let data = ''
         res.on('data', (chunk) => (data += chunk))
         res.on('end', () => {
+          const status = res.statusCode ?? 0
+          if (status < 200 || status >= 300) {
+            resolve({ ok: false, error: `Registry request failed (HTTP ${status})` })
+            return
+          }
           try {
             resolve({ ok: true, data: JSON.parse(data) })
           } catch {
@@ -739,14 +749,55 @@ ipcMain.handle('skills:searchMarketplace', (_e, query: string, page: number) => 
     })
   }
   const params = new URLSearchParams({ q: query, type: 'skills', limit: '24', page: String(page) })
-  return doGet(`https://mcpmarket.com/api/search?${params}`)
+  const marketplace = await doGet(`https://mcpmarket.com/api/search?${params}`, {
+    'Accept': 'application/json',
+    'User-Agent': 'skills-manager-desktop',
+    'Referer': 'https://mcpmarket.com/',
+  })
+  if (marketplace.ok && Array.isArray(marketplace.data?.skills)) return marketplace
+
+  const githubToken = getGithubToken()
+  const githubHeaders: Record<string, string> = {
+    'Accept': 'application/vnd.github+json',
+    'User-Agent': 'skills-manager-desktop',
+    'X-GitHub-Api-Version': '2022-11-28',
+  }
+  if (githubToken) githubHeaders.Authorization = `Bearer ${githubToken}`
+  const githubQuery = query.trim() ? `${query.trim()} topic:agent-skills` : 'topic:agent-skills'
+  const githubParams = new URLSearchParams({
+    q: githubQuery,
+    sort: 'stars',
+    order: 'desc',
+    per_page: '24',
+    page: String(page),
+  })
+  const github = await doGet(`https://api.github.com/search/repositories?${githubParams}`, githubHeaders)
+  if (!github.ok) return { ok: false, error: `${marketplace.error ?? 'Marketplace unavailable'}; ${github.error ?? 'GitHub fallback unavailable'}` }
+
+  const items = Array.isArray(github.data?.items) ? github.data.items : []
+  return {
+    ok: true,
+    data: {
+      source: 'github',
+      skills: items.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        slug: item.name,
+        github: item.full_name,
+        owner: { name: item.owner?.login ?? '', url: item.owner?.html_url ?? '' },
+        description: item.description ?? '',
+        github_stars: item.stargazers_count ?? 0,
+      })),
+      pagination: { hasMore: (github.data?.total_count ?? 0) > page * 24 },
+    },
+  }
 })
 
 app.whenReady().then(() => {
   createWindow()
 
   // Watch skill directories and notify renderer on any change
-  const watchPaths = Object.values(TOOL_PATHS)
+  const watchPaths = Object.keys(TOOL_PATHS).flatMap(getToolPaths)
   const watcher = chokidar.watch(watchPaths, {
     ignoreInitial: true,
     depth: 2,

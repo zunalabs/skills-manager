@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { toRepoPath, toGithubUrl } from '../lib/repoUtils'
 import { toast } from 'sonner'
+import { Download, ExternalLink, Search, Star } from 'lucide-react'
 
 interface SkillResult {
   id: number
@@ -16,7 +17,7 @@ interface MarketplaceProps {
   onInstall: (repo: string) => void
 }
 
-async function fetchSkills(query: string, page: number): Promise<{ skills: SkillResult[]; hasMore: boolean }> {
+async function fetchSkills(query: string, page: number): Promise<{ skills: SkillResult[]; hasMore: boolean; source: 'marketplace' | 'github' }> {
   const res = await window.skillsAPI.searchMarketplace(query, page)
   if (!res.ok) throw new Error(res.error ?? 'Failed to fetch')
   const data = res.data
@@ -31,7 +32,7 @@ async function fetchSkills(query: string, page: number): Promise<{ skills: Skill
       description: item.description ?? '',
       stars: item.github_stars ?? 0,
     }))
-  return { skills, hasMore: data.pagination?.hasMore ?? false }
+  return { skills, hasMore: data.pagination?.hasMore ?? false, source: data.source === 'github' ? 'github' : 'marketplace' }
 }
 
 export default function Marketplace({ onInstall }: MarketplaceProps) {
@@ -42,15 +43,17 @@ export default function Marketplace({ onInstall }: MarketplaceProps) {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(false)
+  const [source, setSource] = useState<'marketplace' | 'github'>('marketplace')
 
   const load = useCallback((p: number, append: boolean) => {
     if (p === 1) setLoading(true)
     else setLoadingMore(true)
     setError('')
     fetchSkills('', p)
-      .then(({ skills: items, hasMore: more }) => {
+      .then(({ skills: items, hasMore: more, source: resultSource }) => {
         setAllSkills((prev) => append ? [...prev, ...items] : items)
         setHasMore(more)
+        setSource(resultSource)
       })
       .catch((e) => {
         const msg = e.message ?? 'Failed to load'
@@ -78,14 +81,11 @@ export default function Marketplace({ onInstall }: MarketplaceProps) {
     : allSkills
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-zinc-950">
+    <div className="marketplace-view flex flex-col h-full overflow-hidden bg-zinc-950">
       {/* Toolbar */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-zinc-800 flex-shrink-0">
         <div className="relative w-64">
-          <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-zinc-600 pointer-events-none" viewBox="0 0 16 16" fill="none">
-            <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" strokeWidth="1.5"/>
-            <path d="M10 10l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-          </svg>
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-zinc-600 pointer-events-none" />
           <input
             type="text"
             placeholder="Search skill packs…"
@@ -98,10 +98,10 @@ export default function Marketplace({ onInstall }: MarketplaceProps) {
           {!loading && (q ? `${skills.length} of ${allSkills.length}` : `${allSkills.length} packs`)}
         </span>
         <button
-          onClick={() => window.skillsAPI.openExternal('https://mcpmarket.com')}
-          className="text-[11px] text-zinc-600 hover:text-zinc-400 transition-colors"
+          onClick={() => window.skillsAPI.openExternal(source === 'github' ? 'https://github.com/topics/agent-skills' : 'https://mcpmarket.com')}
+          className="flex items-center gap-1 text-[11px] text-zinc-600 hover:text-zinc-400 transition-colors"
         >
-          mcpmarket.com ↗
+          {source === 'github' ? 'GitHub catalog' : 'MCP Market'} <ExternalLink className="w-3 h-3" />
         </button>
       </div>
 
@@ -110,7 +110,7 @@ export default function Marketplace({ onInstall }: MarketplaceProps) {
         {loading && (
           <div className="flex items-center justify-center h-48">
             <div className="text-center">
-              <div className="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <div className="w-5 h-5 border-2 border-zinc-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
               <p className="text-xs text-zinc-600">Loading registry…</p>
             </div>
           </div>
@@ -139,7 +139,7 @@ export default function Marketplace({ onInstall }: MarketplaceProps) {
 
         {!loading && !error && skills.length > 0 && (
           <>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="marketplace-grid grid grid-cols-3 gap-3">
               {skills.map((skill) => (
                 <SkillCard key={skill.id} skill={skill} onInstall={onInstall} />
               ))}
@@ -195,9 +195,7 @@ function SkillCard({ skill, onInstall }: { skill: SkillResult; onInstall: (repo:
         </div>
         {skill.stars > 0 && (
           <div className="flex items-center gap-1 flex-shrink-0 ml-auto">
-            <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor" className="text-zinc-600">
-              <path d="M8 1l1.9 4.1 4.1.4-3 2.8.8 4.2L8 10.4l-3.8 2.1.8-4.2-3-2.8 4.1-.4z"/>
-            </svg>
+            <Star className="w-3 h-3 text-zinc-600" fill="currentColor" />
             <span className="text-[10px] text-zinc-600 tabular-nums">{skill.stars}</span>
           </div>
         )}
@@ -222,9 +220,7 @@ function SkillCard({ skill, onInstall }: { skill: SkillResult; onInstall: (repo:
           onClick={() => onInstall(skill.github)}
           className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-medium bg-black text-white hover:bg-zinc-800 transition-colors border border-zinc-700"
         >
-          <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
-            <path d="M6 1v7M3 5l3 3 3-3M2 10h8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <Download className="w-3 h-3" />
           Install
         </button>
       </div>

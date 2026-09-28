@@ -6,6 +6,9 @@ import Header from './components/Header'
 import InstallModal from './components/InstallModal'
 import Marketplace from './components/Marketplace'
 import SettingsPanel from './components/SettingsPanel'
+import AppNav from './components/AppNav'
+import TitleBar from './components/TitleBar'
+import FeedbackModal from './components/FeedbackModal'
 import { ToolIcon } from './components/ToolIcon'
 import { categorizeSkills } from './lib/categorize'
 import { Toaster, toast } from 'sonner'
@@ -14,7 +17,6 @@ const DEFAULT_SETTINGS: AppSettings = {
   theme: 'dark',
   compactSidebar: false,
   fileWatcher: true,
-  showDisabled: true,
   sidebarWidth: 'md',
   confirmDelete: true,
   showVersionBadge: true,
@@ -34,12 +36,12 @@ export default function App() {
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null)
   const [search, setSearch] = useState('')
   const [filterTool, setFilterTool] = useState<string>('all')
-  const [filterStatus, setFilterStatus] = useState<'all' | 'enabled' | 'disabled'>('all')
   const [filterCollection, setFilterCollection] = useState<string | null>(null)
   const [showInstallModal, setShowInstallModal] = useState(false)
   const [installRepo, setInstallRepo] = useState<string | undefined>(undefined)
   const [view, setView] = useState<'skills' | 'discover'>('skills')
   const [showSettings, setShowSettings] = useState(false)
+  const [showFeedback, setShowFeedback] = useState(false)
   const [settings, setSettings] = useState<AppSettings>(loadSettings)
   const [favourites, setFavourites] = useState<Set<string>>(
     () => new Set(JSON.parse(localStorage.getItem('skills-manager-favourites') ?? '[]'))
@@ -114,20 +116,14 @@ export default function App() {
   const activeCollection = tagCollections.find((c) => c.id === filterCollection) ?? null
 
   const filteredSkills = allSkills.filter((s) => {
-    // If user explicitly filters for disabled, show them regardless of settings.showDisabled
-    if (filterStatus !== 'disabled' && !settings.showDisabled && !s.enabled) return false
     const matchSearch =
       !search ||
       s.name.toLowerCase().includes(search.toLowerCase()) ||
       s.description.toLowerCase().includes(search.toLowerCase()) ||
       s.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()))
     const matchTool = filterTool === 'all' || s.tool === filterTool
-    const matchStatus =
-      filterStatus === 'all' ||
-      (filterStatus === 'enabled' && s.enabled) ||
-      (filterStatus === 'disabled' && !s.enabled)
     const matchCollection = !activeCollection || activeCollection.skillIds.includes(s.id)
-    return matchSearch && matchTool && matchStatus && matchCollection
+    return matchSearch && matchTool && matchCollection
   })
 
   const handleDelete = (skill: Skill) => {
@@ -141,46 +137,38 @@ export default function App() {
     if (selectedSkill?.id === skill.id) setSelectedSkill(null)
   }
 
-  const handleToggle = async (skill: Skill) => {
-    const newEnabled = !skill.enabled
-    const result = await window.skillsAPI.toggle(skill.path, newEnabled)
-    if (result.ok) {
-      const patch = { enabled: newEnabled, path: result.newPath }
-      setTools((prev) =>
-        prev.map((t) => ({
-          ...t,
-          skills: t.skills.map((s) => s.id === skill.id ? { ...s, ...patch } : s),
-        }))
-      )
-          if (selectedSkill?.id === skill.id) {
-            setSelectedSkill((prev) => prev ? { ...prev, ...patch } : prev)
-          }
-          toast.success(`Skill ${newEnabled ? 'enabled' : 'disabled'}`)
-        } else {
-          console.error('Toggle failed for', skill.path, (result as any).error)
-          toast.error(`Failed to toggle skill: ${(result as any).error || 'Unknown error'}`)
-        }
-  }
-
-  const totalEnabled = allSkills.filter((s) => s.enabled).length
-
   return (
-    <div className="flex flex-col h-screen bg-zinc-950">
+    <div className="app-shell">
+      <TitleBar
+        theme={settings.theme}
+        sidebarOpen={sidebarOpen}
+        onInstall={() => { setInstallRepo(undefined); setShowInstallModal(true) }}
+        onSettings={() => setShowSettings(true)}
+        onFeedback={() => setShowFeedback(true)}
+        onRefresh={loadSkills}
+        onToggleSidebar={() => setSidebarOpen((open) => !open)}
+        onThemeChange={(theme) => handleSettingsChange({ ...settings, theme })}
+      />
+      <div className="app-layout">
+      <AppNav
+        view={view}
+        onViewChange={setView}
+        onInstall={() => { setInstallRepo(undefined); setShowInstallModal(true) }}
+        onSettings={() => setShowSettings((v) => !v)}
+        onFeedback={() => setShowFeedback(true)}
+        totalSkills={allSkills.length}
+      />
+      <section className="app-stage">
       <Header
         search={search}
         onSearch={setSearch}
         onRefresh={loadSkills}
-        onInstall={() => { setInstallRepo(undefined); setShowInstallModal(true) }}
-        totalSkills={allSkills.length}
-        totalEnabled={totalEnabled}
         filterTool={filterTool}
         onFilterTool={setFilterTool}
-        filterStatus={filterStatus}
-        onFilterStatus={setFilterStatus}
         tools={tools}
         view={view}
-        onViewChange={setView}
-        onSettings={() => setShowSettings((v) => !v)}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen((open) => !open)}
       />
       {showInstallModal && (
         <InstallModal
@@ -197,22 +185,21 @@ export default function App() {
         />
       )}
       {view === 'discover' ? (
-        <div className="flex flex-1 overflow-hidden p-2">
-          <div className="flex-1 overflow-hidden rounded-lg border border-zinc-800">
+        <div className="workspace-frame">
+          <div className="content-panel">
             <Marketplace
               onInstall={(repo) => { setInstallRepo(repo); setShowInstallModal(true) }}
             />
           </div>
         </div>
       ) : (
-        <div className="flex flex-1 overflow-hidden p-2 gap-2">
+        <div className="workspace-frame">
           {sidebarOpen && (
             <Sidebar
               skills={filteredSkills}
               selected={selectedSkill}
               onSelect={setSelectedSkill}
               loading={loading}
-              onToggle={handleToggle}
               collections={tagCollections}
               filterCollection={filterCollection}
               onFilterCollection={setFilterCollection}
@@ -220,26 +207,13 @@ export default function App() {
               sidebarWidth={settings.sidebarWidth}
               favourites={favourites}
               onToggleFavourite={handleToggleFavourite}
-              sidebarOpen={sidebarOpen}
               onToggleSidebar={() => setSidebarOpen(v => !v)}
             />
           )}
-          {!sidebarOpen && (
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="flex-shrink-0 w-6 flex items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 text-zinc-600 hover:text-zinc-400 transition-colors"
-              title="Show sidebar"
-            >
-              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                <path d="M3 2l4 3-4 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-          )}
-          <main className="flex-1 overflow-hidden rounded-lg border border-zinc-800">
+          <main className="content-panel">
             {selectedSkill ? (
               <SkillDetail
                 skill={selectedSkill}
-                onToggle={handleToggle}
                 onDelete={handleDelete}
                 isFavourite={favourites.has(selectedSkill?.id ?? '')}
                 onToggleFavourite={() => handleToggleFavourite(selectedSkill!.id)}
@@ -252,6 +226,9 @@ export default function App() {
           </main>
         </div>
       )}
+      {showFeedback && <FeedbackModal onClose={() => setShowFeedback(false)} />}
+      </section>
+      </div>
       <Toaster
         richColors
         closeButton
@@ -266,7 +243,7 @@ export default function App() {
             closeButton: '!bg-zinc-800 !border-zinc-700 !text-zinc-400 hover:!bg-zinc-700 hover:!text-zinc-200 !transition-colors',
             error: '!border-red-500/30 !bg-red-500/5',
             success: '!border-emerald-500/30 !bg-emerald-500/5',
-            warning: '!border-amber-500/30 !bg-amber-500/5',
+            warning: '!border-zinc-500/30 !bg-zinc-500/5',
           },
         }}
       />
@@ -276,61 +253,28 @@ export default function App() {
 
 function EmptyState({ tools, loading }: { tools: ToolSummary[]; loading: boolean }) {
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-xs text-zinc-600">Scanning skill directories…</p>
-        </div>
-      </div>
-    )
+    return <div className="detail-loading"><i /><span>Indexing your workspace…</span></div>
   }
 
   const available = tools.filter((t) => t.exists)
   const missing = tools.filter((t) => !t.exists)
+  const skillCount = tools.reduce((sum, tool) => sum + tool.skillCount, 0)
 
   return (
-    <div className="flex items-center justify-center h-full p-8">
-      <div className="w-full max-w-xs">
-        <div className="text-center mb-6">
-          <h2 className="font-heading text-base text-zinc-300 mb-1">Select a skill</h2>
-          <p className="text-xs text-zinc-600">
-            {available.length > 0
-              ? `${available.length} agent${available.length !== 1 ? 's' : ''} with skills installed`
-              : 'No agent paths found on this machine'}
-          </p>
-        </div>
-
-        <div className="space-y-1">
-          {tools.map((t) => (
-            <div
-              key={t.tool}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded border ${
-                t.exists ? 'bg-zinc-900 border-zinc-800' : 'bg-transparent border-zinc-800/40'
-              }`}
-            >
-              <span className={`flex-shrink-0 ${t.exists ? 'text-zinc-400' : 'text-zinc-700'}`}>
-                <ToolIcon tool={t.tool} size={14} />
-              </span>
-              <span className={`text-xs flex-1 font-medium ${t.exists ? 'text-zinc-300' : 'text-zinc-600'}`}>
-                {t.tool}
-              </span>
-              {t.exists ? (
-                <span className="text-[10px] text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded-full tabular-nums">
-                  {t.skillCount} skill{t.skillCount !== 1 ? 's' : ''}
-                </span>
-              ) : (
-                <span className="text-[10px] text-zinc-700">not found</span>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {missing.length > 0 && (
-          <p className="text-[11px] text-zinc-500 text-center mt-4">
-            {missing.length} path{missing.length !== 1 ? 's' : ''} not configured
-          </p>
-        )}
+    <div className="library-overview">
+      <div className="overview-symbol" aria-hidden="true">
+        <img src="./brand/mark-dark.svg" alt="" />
+      </div>
+      <h1>Select a skill to get started</h1>
+      <p>Review instructions, inspect templates, and manage where each skill is available.</p>
+      <div className="overview-stats">
+        <div><strong>{skillCount}</strong><span>skills indexed</span></div>
+        <div><strong>{available.length}</strong><span>agents connected</span></div>
+        <div><strong>{missing.length}</strong><span>agents available</span></div>
+      </div>
+      <div className="agent-rack">
+        <span>Connected agents</span>
+        <div>{available.map((tool) => <div key={tool.tool} title={`${tool.tool}: ${tool.skillCount} skills`}><ToolIcon tool={tool.tool} size={18} /><i>{tool.skillCount}</i></div>)}</div>
       </div>
     </div>
   )

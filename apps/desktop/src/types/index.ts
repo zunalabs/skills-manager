@@ -11,7 +11,6 @@ export interface Skill {
   toolPath: string
   hasTemplates: boolean
   templateCount: number
-  enabled: boolean
 }
 
 export interface Collection {
@@ -24,10 +23,16 @@ export interface AppSettings {
   theme: 'dark' | 'light'
   compactSidebar: boolean
   fileWatcher: boolean
-  showDisabled: boolean
   sidebarWidth: 'sm' | 'md' | 'lg'
   confirmDelete: boolean
   showVersionBadge: boolean
+}
+
+export interface FeedbackPayload {
+  category: 'bug' | 'idea' | 'general'
+  rating?: number
+  message: string
+  email?: string
 }
 
 export interface ToolSummary {
@@ -55,11 +60,12 @@ export interface DiscoverResult {
 declare global {
   interface Window {
     skillsAPI: {
+      windowControl: (action: 'minimize' | 'maximize' | 'close') => Promise<boolean>
+      editAction: (action: 'undo' | 'redo' | 'cut' | 'copy' | 'paste' | 'selectAll') => Promise<void>
       scanAll: () => Promise<ToolSummary[]>
       getReadme: (skillPath: string) => Promise<string>
       listTemplates: (skillPath: string) => Promise<string[]>
       readTemplate: (skillPath: string, templateName: string) => Promise<string>
-      toggle: (skillPath: string, enabled: boolean) => Promise<{ ok: boolean; newPath: string }>
       delete: (skillPath: string) => Promise<boolean>
       listAgentPaths: () => Promise<Record<string, string>>
       copyToAgent: (skillPath: string, targetAgent: string) => Promise<{ ok: boolean; error?: string }>
@@ -68,6 +74,7 @@ declare global {
       onInstallProgress: (cb: (msg: string) => void) => () => void
       openInExplorer: (skillPath: string) => Promise<void>
       openExternal: (url: string) => Promise<void>
+      submitFeedback: (feedback: FeedbackPayload) => Promise<{ ok: boolean; error?: string }>
       searchMarketplace: (query: string, page: number) => Promise<{ ok: boolean; data?: any; error?: string }>
       getGithubToken: () => Promise<string>
       setGithubToken: (token: string) => Promise<void>

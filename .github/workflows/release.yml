@@ -93,16 +93,6 @@ jobs:
             dist/linux/*.AppImage
             dist/linux/*.deb
           generate_release_notes: true
-          body: |
-            ## What's new
-            - Linux support — download the `.AppImage` (runs on any distro) or `.deb` (Debian/Ubuntu)
-            - Windows installer unchanged
-
-            ## Downloads
-            | Platform | File |
-            |----------|------|
-            | Windows | `Skills-Manager-Setup.exe` |
-            | Linux (AppImage) | `Skills-Manager-linux-x64.AppImage` |
-            | Linux (deb) | `Skills-Manager-linux-x64.deb` |
+          body_path: RELEASE_NOTES.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
