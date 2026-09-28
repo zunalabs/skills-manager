@@ -8,9 +8,28 @@ export function AgentIcon({ agent, size = 24 }: { agent: string; size?: number }
   if (agent === 'OpenCode') return <OpenCodeIcon size={size} />
   if (agent === 'Gemini CLI') return <GeminiCLIIcon size={size} />
   if (agent === 'Windsurf') return <WindsurfIcon size={size} />
+  if (agent === 'Devin Desktop') return <DevinIcon size={size} />
   if (agent === 'Trae') return <TraeIcon size={size} />
   if (agent === 'OpenAI Codex') return <img src="/codex.png" width={size} height={size} style={{ objectFit: 'contain' }} alt="OpenAI Codex" />
   return null
+}
+
+function DevinIcon({ size }: { size: number }) {
+  return (
+    <span
+      aria-label="Devin"
+      role="img"
+      style={{ display: 'inline-flex', width: size, height: size, overflow: 'hidden' }}
+    >
+      <img
+        src="/devin.svg"
+        alt=""
+        width={Math.round(size * 3.8)}
+        height={size}
+        style={{ width: 'auto', maxWidth: 'none', height: size, color: 'currentColor' }}
+      />
+    </span>
+  )
 }
 
 function ClaudeCodeIcon({ size }: { size: number }) {
