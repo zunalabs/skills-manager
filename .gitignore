@@ -2,6 +2,7 @@ node_modules
 dist
 dist-electron
 release
+apps/desktop/release-test*/
 apps/desktop/build
 .next
 out
